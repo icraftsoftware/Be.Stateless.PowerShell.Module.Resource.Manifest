@@ -28,11 +28,14 @@ Describe 'Compare-Item' {
       }
 
       Context 'When one Item is not a PSCustomObject' {
+         BeforeAll {
+            $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
+         }
          It 'Throws when ReferenceItem is a HashTable.' {
-            { Compare-Item -ReferenceItem (@{Name = 'Stark' }) -DifferenceItem [PSCustomObject](@{ Name = 'Stark' }) } | Should -Throw #-ExceptionType ([System.Management.Automation.ParameterBindingValidationException])
+            { Compare-Item -ReferenceItem (@{Name = 'Stark' }) -DifferenceItem [PSCustomObject](@{ Name = 'Stark' }) } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
          }
          It 'Throws when DifferenceItem is a HashTable.' {
-            { Compare-Item -ReferenceItem [PSCustomObject](@{Name = 'Stark' }) -DifferenceItem (@{ Name = 'Stark' }) } | Should -Throw #-ExceptionType ([System.Management.Automation.ParameterBindingValidationException])
+            { Compare-Item -ReferenceItem [PSCustomObject](@{Name = 'Stark' }) -DifferenceItem (@{ Name = 'Stark' }) } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
          }
       }
 
@@ -106,6 +109,27 @@ Describe 'Compare-Item' {
             $result.ReferenceValue | Should -Be 'partner'
             $result.SideIndicator | Should -Be '<>'
             $result.DifferenceValue | Should -Be 'assistant'
+         }
+      }
+
+      Context 'When Items have an array property' {
+         It 'Returns nothing.' {
+            $left = [PSCustomObject]@{ firstname = 'pepper' ; array = 1, 2 }
+            $right = [PSCustomObject]@{ firstname = 'pepper' ; array = 1, 2 }
+
+            Compare-Item -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
+         }
+         It 'Returns ''array (1, 2)) <> (3, 4, 5)''.' {
+            $left = [PSCustomObject]@{ firstname = 'pepper' ; array = 1, 2 }
+            $right = [PSCustomObject]@{ firstname = 'pepper' ; array = 3, 4, 5 }
+
+            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+
+            $result.Length | Should -Be 1
+            $result.Property | Should -Be 'array'
+            $result.ReferenceValue | Should -Be '(1, 2)'
+            $result.SideIndicator | Should -Be '<>'
+            $result.DifferenceValue | Should -Be '(3, 4, 5)'
          }
       }
 

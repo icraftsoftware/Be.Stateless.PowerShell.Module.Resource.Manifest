@@ -27,7 +27,7 @@ Describe 'New-Item' {
     }
     InModuleScope Resource {
 
-        Context 'When both ItemGroups are empty' {
+        Context 'Creating a new resource Item' {
             It 'Throws when name is null.' {
                 { New-Item -Resource SomeResource -Name $null } | Should -Throw
             }
@@ -37,14 +37,14 @@ Describe 'New-Item' {
             It 'Returns a custom object with a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' }
 
-                $actualItem = New-Item -Resource SomeResource -Name ActivityID
+                $actualItem = New-Item -Resource SomeResource -Name ActivityID -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with a name property.' {
                 $expectedItems = [PSCustomObject]@{ Name = 'BeginTime' }, [PSCustomObject]@{ Name = 'InterchangeID' }, [PSCustomObject]@{ Name = 'ProcessName' }
 
-                $actualItems = New-Item -Resource SomeResource -Name BeginTime, InterchangeID, ProcessName
+                $actualItems = New-Item -Resource SomeResource -Name BeginTime, InterchangeID, ProcessName -PassThru
 
                 $actualItems | Should -HaveCount 3
                 0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
@@ -55,7 +55,7 @@ Describe 'New-Item' {
             It 'Returns a custom object with both a path and a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
 
-                $actualItem = New-Item -Resource SomeResource -Path TestDrive:\one.txt
+                $actualItem = New-Item -Resource SomeResource -Path TestDrive:\one.txt -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
@@ -66,7 +66,7 @@ Describe 'New-Item' {
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $actualItems = New-Item -Resource SomeResource -Path (Get-ChildItem -Path TestDrive:\)
+                $actualItems = New-Item -Resource SomeResource -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
                 $actualItems | Should -HaveCount 3
                 0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
@@ -80,52 +80,55 @@ Describe 'New-Item' {
             It 'Does not throw when Condition is a ScriptBlock.' {
                 { New-Item -Resource SomeResource -Name ActivityID -Condition { $true } -Activity Process } | Should -Not -Throw
             }
-            It 'Returns a custom object with a Condition property.' {
-                $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Condition = $true ; Activity = 'Process' }
+            It 'Returns a custom object without a Condition property if it is true.' {
+                $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Activity = 'Process' }
 
-                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Condition $true -Activity Process
+                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Condition $true -Activity Process -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-            It 'Returns a custom object with a Condition property that is a ScriptBlock.' {
+            It 'Returns a custom object with a Condition property if it is false.' {
+                $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Condition = $false ; Activity = 'Process' }
+
+                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Condition $false -Activity Process -PassThru
+
+                Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+            }
+            It 'Returns a custom object with a Condition property being a ScriptBlock.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Activity = 'Process' } | Add-Member -MemberType ScriptProperty -Name Condition -Value { $true } -PassThru
 
-                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Condition { $true } -Activity Process
+                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Condition { $true } -Activity Process -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a named custom object with dynamic properties corresponding to UnboundArguments.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Activity = 'Process' ; Server = 'ManagementDb' }
 
-                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Activity Process -Server ManagementDb
+                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Activity Process -Server ManagementDb -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-            It 'Returns a named custom object with a dynamic property that is a ScriptBlock.' {
+            It 'Returns a named custom object with a dynamic property being a ScriptBlock.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Activity = 'Process' ; Server = 'ManagementDb' } | Add-Member -MemberType ScriptProperty -Name Predicate -Value { $true } -PassThru
 
-                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Activity Process -Server ManagementDb -Predicate { $true }
+                $actualItem = New-Item -Resource SomeResource -Name ActivityID -Activity Process -Server ManagementDb -Predicate { $true } -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a located custom object with dynamic properties corresponding to UnboundArguments.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Activity = 'Process' ; Server = 'ManagementDb' }
 
-                $actualItem = New-Item -Resource SomeResource -Path TestDrive:\one.txt -Activity Process -Server ManagementDb
+                $actualItem = New-Item -Resource SomeResource -Path TestDrive:\one.txt -Activity Process -Server ManagementDb -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-            It 'Returns a located custom object with a dynamic property that is a ScriptBlock.' {
+            It 'Returns a located custom object with a dynamic property being a ScriptBlock.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Activity = 'Process' ; Server = 'ManagementDb' } | Add-Member -MemberType ScriptProperty -Name Predicate -Value { $true } -PassThru
 
-                $actualItem = New-Item -Resource SomeResource -Path TestDrive:\one.txt -Activity Process -Server ManagementDb -Predicate { $true }
+                $actualItem = New-Item -Resource SomeResource -Path TestDrive:\one.txt -Activity Process -Server ManagementDb -Predicate { $true } -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-
-            # TODO Test unicity
-            # TODO Test unicity across ItemGroups
-            # TODO test condition evaluation
         }
 
     }

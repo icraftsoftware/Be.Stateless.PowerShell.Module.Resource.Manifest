@@ -45,7 +45,15 @@ function Compare-Item {
             Write-Verbose -Message $difference
         } else {
             $referenceValue, $differenceValue = $ReferenceItem.$key, $DifferenceItem.$key
-            if ($referenceValue -ne $differenceValue) {
+            if ($referenceValue -is [array] -or $differenceValue -is [array]) {
+                $arrayDifferences = Compare-Object -ReferenceObject $referenceValue -DifferenceObject $differenceValue
+                if ($arrayDifferences | Test-Any) {
+                    $uniqueReferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '<=' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
+                    $uniqueDifferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '=>' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
+                    [PSCustomObject]@{Property = $key ; ReferenceValue = "($uniqueReferenceValues)" ; SideIndicator = '<>' ; DifferenceValue = "($uniqueDifferenceValues)" } | Tee-Object -Variable difference
+                    Write-Verbose -Message $difference
+                }
+            } elseif ($referenceValue -ne $differenceValue) {
                 [PSCustomObject]@{Property = $key ; ReferenceValue = $referenceValue ; SideIndicator = '<>' ; DifferenceValue = $differenceValue } | Tee-Object -Variable difference
                 Write-Verbose -Message $difference
             }
@@ -78,7 +86,12 @@ function New-Item {
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
-        $Condition,
+        $Condition = $true,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'named-resource')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
+        [switch]
+        $PassThru,
 
         [Parameter(DontShow, Mandatory = $false, ParameterSetName = 'named-resource', ValueFromRemainingArguments = $true)]
         [Parameter(DontShow, Mandatory = $false, ParameterSetName = 'file-resource', ValueFromRemainingArguments = $true)]
@@ -86,68 +99,136 @@ function New-Item {
         [object[]]
         $UnboundArguments = @()
     )
+    Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    $DynamicProperties = ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments
+    if (-not($Condition -is [bool]) -or -not($Condition)) { $DynamicProperties.Add('Condition', $Condition) }
 
-    function Update-Item {
-        [CmdletBinding()]
-        [OutputType([PSCustomObject])]
-        param (
-            [Parameter(Mandatory = $true)]
-            [ValidateNotNull()]
-            [PSCustomObject]
-            $Item,
-
-            [Parameter(Mandatory = $true)]
-            [AllowEmptyCollection()]
-            [psobject[]]
-            $Properties
-        )
-        process {
-            $DynamicProperties = @{ }
-            if ($null -ne $Condition) {
-                $DynamicProperties.Add('Condition', $Condition)
-            }
-            $Properties | ForEach-Object -Process {
-                switch -regex ($_) {
-                    # parse parameter name
-                    '^-(\w+)$' {
-                        $lastParameterName = $matches[1]
-                        $DynamicProperties.Add($matches[1], $null)
-                        break
-                    }
-                    # parse values of last parsed parameter
-                    default {
-                        $DynamicProperties.$lastParameterName += $_
-                        break
-                    }
-                }
-            }
-            $DynamicProperties.Keys | ForEach-Object -Process {
-                if ($DynamicProperties.$_ -is [ScriptBlock]) {
-                    Add-Member -InputObject $item -MemberType ScriptProperty -Name $_ -Value $DynamicProperties.$_
-                } else {
-                    Add-Member -InputObject $item -MemberType NoteProperty -Name $_ -Value $DynamicProperties.$_
-                }
-            }
-            $Item
-        }
+    if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
+        $identity = $Name
+        $isNamedResource = $true
+    } else {
+        $identity = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        $isNamedResource = $false
     }
 
-    switch ( $PSCmdlet.ParameterSetName) {
-        'named-resource' {
-            $Name | ForEach-Object -Process {
-                $item = New-Object -TypeName PSCustomObject
-                Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $_
-                Update-Item -Item $item -Properties $UnboundArguments
-            }
+    $identity | ForEach-Object -Process {
+        $item = New-Object -TypeName PSCustomObject
+        if ($isNamedResource) {
+            Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $_
+        } else {
+            Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value (Split-Path -Path $_ -Leaf)
+            Add-Member -InputObject $item -MemberType NoteProperty -Name Path -Value $_
         }
-        'file-resource' {
-            $Path | ForEach-Object -Process {
-                $resolvedPath = $_ | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-                $item = New-Object -TypeName PSCustomObject
-                Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value (Split-Path -Path $resolvedPath -Leaf)
-                Add-Member -InputObject $item -MemberType NoteProperty -Name Path -Value $resolvedPath
-                Update-Item -Item $item -Properties $UnboundArguments
-            }
+        Add-ItemProperties -Item $item -DynamicProperties $DynamicProperties -PassThru:$PassThru
+        if ($Manifest.ContainsKey($Resource)) {
+            $Manifest.$Resource = @($Manifest.$Resource, $item)
+        } else {
+            $Manifest.Add($Resource, $item)
         }
     }
 }
+
+function New-Manifest {
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Resource,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Description,
+
+        [Parameter(DontShow, Mandatory = $false, ValueFromRemainingArguments = $true)]
+        [ValidateNotNullOrEmpty()]
+        [object[]]
+        $UnboundArguments
+    )
+    Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    $item = New-Object -TypeName PSCustomObject
+    Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $Name
+    Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
+    Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
+
+    $Manifest = @{ }
+    $Manifest.Add($Resource, $item)
+    $Manifest
+}
+
+#region helpers
+
+function Add-ItemProperties {
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNull()]
+        [PSCustomObject]
+        $Item,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [AllowEmptyCollection()]
+        [hashtable]
+        $DynamicProperties,
+
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $PassThru
+    )
+    process {
+        $DynamicProperties.Keys | ForEach-Object -Process {
+            if ($DynamicProperties.$_ -is [ScriptBlock]) {
+                Add-Member -InputObject $item -MemberType ScriptProperty -Name $_ -Value $DynamicProperties.$_
+            } else {
+                Add-Member -InputObject $item -MemberType NoteProperty -Name $_ -Value $DynamicProperties.$_
+            }
+        }
+        if ($PassThru) { $Item }
+    }
+}
+
+function ConvertTo-DynamicProperties {
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [AllowEmptyCollection()]
+        [psobject[]]
+        $UnboundArguments
+    )
+    $DynamicProperties = @{ }
+    $UnboundArguments | ForEach-Object -Process {
+        if ($_ -is [array]) {
+            $DynamicProperties.$lastParameterName = $_
+        } else {
+            switch -regex ($_) {
+                # parse parameter name
+                '^-(\w+):?$' {
+                    $DynamicProperties.Add(($lastParameterName = $matches[1]), $null)
+                    break
+                }
+                # parse values of last parsed parameter
+                default {
+                    $DynamicProperties.$lastParameterName = $_
+                    break
+                }
+            }
+        }
+    }
+    $DynamicProperties
+}
+
+#endregion
+
+$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
+    Remove-Variable -Name Manifest -Force -ErrorAction Ignore
+}
+Set-Variable -Name Manifest -Value @{ } -Option ReadOnly -Scope Local -Visibility Private -Force

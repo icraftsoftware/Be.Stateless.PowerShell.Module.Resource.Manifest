@@ -27,17 +27,21 @@
     ProcessorArchitecture = 'None'
     PowerShellVersion     = '5.0'
     NestedModules         = @(
+        'Assembly\Assembly.psm1',
         'Resource\Resource.psm1'
     )
     RequiredAssemblies    = @()
     RequiredModules       = @()
 
-    AliasesToExport       = @()
+    AliasesToExport       = @('Assembly')
     CmdletsToExport       = @()
     FunctionsToExport     = @(
+        # Assembly.psm1
+        'New-Assembly',
         # Resource.psm1
         'Compare-Item',
-        'New-Item'
+        'New-Item',
+        'New-Manifest'
     )
     VariablesToExport     = @()
 
