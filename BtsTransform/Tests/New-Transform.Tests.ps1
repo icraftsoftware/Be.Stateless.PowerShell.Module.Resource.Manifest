@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\BtsTransform -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-Transform' {
     InModuleScope BtsTransform {

@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\BtsComponent -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-Component' {
     InModuleScope BtsComponent {

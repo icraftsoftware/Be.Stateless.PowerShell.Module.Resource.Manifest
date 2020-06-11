@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\BtsBamActivityModel -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-BamActivityModel' {
     InModuleScope BtsBamActivityModel {

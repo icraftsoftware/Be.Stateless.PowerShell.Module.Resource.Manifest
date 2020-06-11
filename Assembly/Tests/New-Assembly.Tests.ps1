@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\Assembly -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-Assembly' {
     InModuleScope Assembly {

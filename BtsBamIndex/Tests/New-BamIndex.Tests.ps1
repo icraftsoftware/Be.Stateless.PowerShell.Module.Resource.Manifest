@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\BtsBamIndex -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-BamIndex' {
     InModuleScope BtsBamIndex {

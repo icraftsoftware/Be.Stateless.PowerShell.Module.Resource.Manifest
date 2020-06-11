@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\BtsBinding -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-Binding' {
     InModuleScope BtsBinding {

@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\SqlDeploymentScript -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-SqlDeploymentScript' {
     InModuleScope SqlDeploymentScript {

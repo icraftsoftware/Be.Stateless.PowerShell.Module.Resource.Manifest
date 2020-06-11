@@ -17,6 +17,7 @@
 #endregion
 
 Import-Module -Name $PSScriptRoot\..\BtsSchema -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 
 Describe 'New-Schema' {
     InModuleScope BtsSchema {

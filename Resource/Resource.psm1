@@ -173,12 +173,9 @@ function New-Manifest {
             $Manifest
         )
         . $Build
+        $Manifest
     }
-
-    $manifest = @{ }
-    $manifest.Add($Type, $item)
-    & $manifestBuildScript -Manifest $manifest
-    $manifest
+    & $manifestBuildScript -Manifest @{ $Type = $item }
 }
 
 #region helpers

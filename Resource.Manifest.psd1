@@ -28,16 +28,66 @@
     PowerShellVersion     = '5.0'
     NestedModules         = @(
         'Assembly\Assembly.psm1',
+        'BtsBamActivityModel\BtsBamActivityModel.psm1',
+        'BtsBamIndex\BtsBamIndex.psm1',
+        'BtsBinding\BtsBinding.psm1',
+        'BtsComponent\BtsComponent.psm1',
+        'BtsOrchestration\BtsOrchestration.psm1',
+        'BtsPipeline\BtsPipeline.psm1',
+        'BtsPipelineComponent\BtsPipelineComponent.psm1',
+        'BtsSchema\BtsSchema.psm1',
+        'BtsTransform\BtsTransform.psm1',
+        'SqlDatabase\SqlDatabase.psm1',
+        'SqlDeploymentScript\SqlDeploymentScript.psm1',
+        'SqlUndeploymentScript\SqlUndeploymentScript.psm1',
         'Resource\Resource.psm1'
     )
     RequiredAssemblies    = @()
     RequiredModules       = @()
 
-    AliasesToExport       = @('Assembly')
+    AliasesToExport       = @(
+        'Assembly',
+        'BamActivityModel',
+        'BamIndex',
+        'Binding',
+        'Component',
+        'Orchestration',
+        'Pipeline',
+        'PipelineComponent',
+        'Schema',
+        'SqlDatabase',
+        'SqlDeploymentScript',
+        'SqlUndeploymentScript',
+        'Transform'
+    )
     CmdletsToExport       = @()
     FunctionsToExport     = @(
         # Assembly.psm1
         'New-Assembly',
+        # BtsBamActivityModel.psm1
+        'New-BamActivityModel',
+        # BtsBamIndex.psm1
+        'New-BamIndex',
+        # BtsBinding.psm1
+        'New-Binding',
+        # BtsComponent.psm1
+        'New-Component',
+        # BtsOrchestration.psm1
+        'New-Orchestration',
+        # BtsPipeline.psm1
+        'New-Pipeline',
+        # BtsPipelineComponent.psm1
+        'New-PipelineComponent',
+        # BtsSchema.psm1
+        'New-Schema',
+        # BtsTransform.psm1
+        'New-Transform',
+        # SqlDatabase.psm1
+        'New-SqlDatabase',
+        # SqlDeploymentScript.psm1
+        'New-SqlDeploymentScript',
+        # SqlUndeploymentScript.psm1
+        'New-SqlUndeploymentScript',
         # Resource.psm1
         'Compare-Item',
         'New-Item',
