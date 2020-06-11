@@ -121,7 +121,7 @@ function New-Item {
         }
         Add-ItemProperties -Item $item -DynamicProperties $DynamicProperties -PassThru:$PassThru
         if ($Manifest.ContainsKey($Resource)) {
-            $Manifest.$Resource = @($Manifest.$Resource, $item)
+            $Manifest.$Resource = @($Manifest.$Resource) + $item
         } else {
             $Manifest.Add($Resource, $item)
         }
@@ -135,7 +135,7 @@ function New-Manifest {
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Resource,
+        $Type,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -147,10 +147,15 @@ function New-Manifest {
         [string]
         $Description,
 
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [scriptblock]
+        $Build,
+
         [Parameter(DontShow, Mandatory = $false, ValueFromRemainingArguments = $true)]
         [ValidateNotNullOrEmpty()]
         [object[]]
-        $UnboundArguments
+        $UnboundArguments = @()
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $item = New-Object -TypeName PSCustomObject
@@ -158,9 +163,22 @@ function New-Manifest {
     Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
     Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
 
-    $Manifest = @{ }
-    $Manifest.Add($Resource, $item)
-    $Manifest
+    $manifestBuildScript = [scriptblock] {
+        [CmdletBinding()]
+        [OutputType([void])]
+        param (
+            [Parameter(Mandatory = $true)]
+            [ValidateNotNullOrEmpty()]
+            [hashtable]
+            $Manifest
+        )
+        . $Build
+    }
+
+    $manifest = @{ }
+    $manifest.Add($Type, $item)
+    & $manifestBuildScript -Manifest $manifest
+    $manifest
 }
 
 #region helpers
@@ -227,8 +245,3 @@ function ConvertTo-DynamicProperties {
 }
 
 #endregion
-
-$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
-    Remove-Variable -Name Manifest -Force -ErrorAction Ignore
-}
-Set-Variable -Name Manifest -Value @{ } -Option ReadOnly -Scope Local -Visibility Private -Force

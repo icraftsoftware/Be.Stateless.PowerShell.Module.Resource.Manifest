@@ -25,7 +25,7 @@ Describe 'New-Manifest' {
             It 'Returns a manifest instance.' {
                 $expectedManifest = [PSCustomObject]@{ Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
-                $actualManifest = New-Manifest -Resource Application -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2'
+                $actualManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2' -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
                 $actualManifest.ContainsKey('Application') | Should -BeTrue
@@ -33,22 +33,33 @@ Describe 'New-Manifest' {
                 Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Application | Should -BeNullOrEmpty
             }
         }
+
         Context 'When values are splatted' {
             It 'Returns a manifest instance.' {
                 $expectedManifest = [PSCustomObject]@{ Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
                 $arguments = @{
-                    Resource    = 'Application'
+                    Type        = 'Application'
                     Name        = 'BizTalk.Factory'
                     Description = 'No comment.'
                     References  = 'App.1', 'App.2'
                 }
-                $actualManifest = New-Manifest @arguments
+                $actualManifest = New-Manifest @arguments -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
                 $actualManifest.ContainsKey('Application') | Should -BeTrue
                 $actualManifest.Application | Should -Not -BeNullOrEmpty
                 Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Application | Should -BeNullOrEmpty
+            }
+        }
+
+        Context 'Resource items can be accumulated in a Manifest' {
+            It 'Makes a Manifest variable available to the build ScriptBlock.' {
+                { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
+                New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                    $Manifest | Should -Not -Be $null
+                }
+                { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
             }
         }
 
