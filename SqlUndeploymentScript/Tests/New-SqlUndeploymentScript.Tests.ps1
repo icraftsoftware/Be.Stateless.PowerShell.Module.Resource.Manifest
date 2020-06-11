@@ -68,21 +68,21 @@ Describe 'New-SqlUndeploymentScript' {
                 '' > TestDrive:\two.sql
                 '' > TestDrive:\six.sql
             }
-            It 'Accumulates the Items as a SqlUndeploymentScripts resource collection of the Manifest being built.' {
+            It 'Accumulates SqlUndeploymentScripts into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.sql' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'six.sql' ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'two.sql' ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $manifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
-                $manifest | Should -Not -BeNullOrEmpty
-                $manifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
-                $manifest.SqlUndeploymentScripts | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $manifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
+                $builtManifest | Should -Not -BeNullOrEmpty
+                $builtManifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
+                $builtManifest.SqlUndeploymentScripts | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
             }
         }
 

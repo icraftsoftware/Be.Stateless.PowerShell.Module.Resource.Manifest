@@ -31,7 +31,7 @@ function New-SqlDeploymentScript {
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
-        $Condition,
+        $Condition = $true,
 
         [Parameter(Mandatory = $false)]
         [switch]
@@ -39,10 +39,10 @@ function New-SqlDeploymentScript {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource = 'SqlDeploymentScripts'
-        Path     = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Resource  = 'SqlDeploymentScripts'
+        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Condition = $Condition
     }
-    if ($null -ne $Condition) { $arguments.Condition = $Condition }
     New-Item @arguments -PassThru:$PassThru
 }
 

@@ -36,7 +36,7 @@ function New-BamIndex {
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
-        $Condition,
+        $Condition = $true,
 
         [Parameter(Mandatory = $false)]
         [switch]
@@ -44,10 +44,10 @@ function New-BamIndex {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource = 'BamIndexes'
-        Name     = $Name
+        Resource  = 'BamIndexes'
+        Name      = $Name
+        Condition = $Condition
     }
-    if ($null -ne $Condition) { $arguments.Condition = $Condition }
     New-Item @arguments -Activity $Activity -PassThru:$PassThru
 }
 

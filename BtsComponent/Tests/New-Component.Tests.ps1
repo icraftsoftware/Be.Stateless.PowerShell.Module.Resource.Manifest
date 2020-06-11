@@ -68,21 +68,21 @@ Describe 'New-Component' {
                 '' > TestDrive:\two.txt
                 '' > TestDrive:\six.txt
             }
-            It 'Accumulates the Items as a Components resource collection of the Manifest being built.' {
+            It 'Accumulates Components into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $manifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-Component -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
-                $manifest | Should -Not -BeNullOrEmpty
-                $manifest.ContainsKey('Components') | Should -BeTrue
-                $manifest.Components | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $manifest.Components[$_] | Should -BeNullOrEmpty }
+                $builtManifest | Should -Not -BeNullOrEmpty
+                $builtManifest.ContainsKey('Components') | Should -BeTrue
+                $builtManifest.Components | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Components[$_] | Should -BeNullOrEmpty }
             }
         }
 

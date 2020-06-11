@@ -59,21 +59,21 @@ Describe 'New-BamIndex' {
         }
 
         Context 'Creating BamIndexes must be done via the ScriptBlock passed to New-Manifest' {
-            It 'Accumulates the Items as a BamIndexes resource collection of the Manifest being built.' {
+            It 'Accumulates BamIndexes into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'BeginTime' ; Activity = 'Process' }
                     [PSCustomObject]@{ Name = 'InterchangeID' ; Activity = 'Process' }
                     [PSCustomObject]@{ Name = 'ProcessName' ; Activity = 'Process' }
                 )
 
-                $manifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-BamIndex -Name BeginTime, InterchangeID, ProcessName -Activity Process
                 }
 
-                $manifest | Should -Not -BeNullOrEmpty
-                $manifest.ContainsKey('BamIndexes') | Should -BeTrue
-                $manifest.BamIndexes | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $manifest.BamIndexes[$_] | Should -BeNullOrEmpty }
+                $builtManifest | Should -Not -BeNullOrEmpty
+                $builtManifest.ContainsKey('BamIndexes') | Should -BeTrue
+                $builtManifest.BamIndexes | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamIndexes[$_] | Should -BeNullOrEmpty }
             }
         }
 

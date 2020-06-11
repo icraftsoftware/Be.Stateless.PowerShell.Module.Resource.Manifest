@@ -150,17 +150,17 @@ Describe 'New-Item' {
         }
 
         Context 'Creating Items must be done via the ScriptBlock passed to New-Manifest' {
-            It 'Accumulates the Items as a named Resource collection of the Manifest being built.' {
+            It 'Accumulates the Items as a named Resource collection into the Manifest being built.' {
                 $expectedItems = [PSCustomObject]@{ Name = 'BeginTime' }, [PSCustomObject]@{ Name = 'InterchangeID' }, [PSCustomObject]@{ Name = 'ProcessName' }
 
-                $manifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-Item -Resource SomeResource -Name BeginTime, InterchangeID, ProcessName
                 }
 
-                $manifest | Should -Not -BeNullOrEmpty
-                $manifest.ContainsKey('SomeResource') | Should -BeTrue
-                $manifest.SomeResource | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $manifest.SomeResource[$_] | Should -BeNullOrEmpty }
+                $builtManifest | Should -Not -BeNullOrEmpty
+                $builtManifest.ContainsKey('SomeResource') | Should -BeTrue
+                $builtManifest.SomeResource | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SomeResource[$_] | Should -BeNullOrEmpty }
             }
         }
 

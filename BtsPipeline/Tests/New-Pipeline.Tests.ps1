@@ -68,21 +68,21 @@ Describe 'New-Pipeline' {
                 '' > TestDrive:\two.txt
                 '' > TestDrive:\six.txt
             }
-            It 'Accumulates the Items as a Pipelines resource collection of the Manifest being built.' {
+            It 'Accumulates Pipelines into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $manifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-Pipeline -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
-                $manifest | Should -Not -BeNullOrEmpty
-                $manifest.ContainsKey('Pipelines') | Should -BeTrue
-                $manifest.Pipelines | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $manifest.Pipelines[$_] | Should -BeNullOrEmpty }
+                $builtManifest | Should -Not -BeNullOrEmpty
+                $builtManifest.ContainsKey('Pipelines') | Should -BeTrue
+                $builtManifest.Pipelines | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Pipelines[$_] | Should -BeNullOrEmpty }
             }
         }
 

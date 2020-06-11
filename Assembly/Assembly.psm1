@@ -31,7 +31,7 @@ function New-Assembly {
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
-        $Condition,
+        $Condition = $true,
 
         [Parameter(Mandatory = $false)]
         [switch]
@@ -39,10 +39,10 @@ function New-Assembly {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource = 'Assemblies'
-        Path     = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Resource  = 'Assemblies'
+        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Condition = $Condition
     }
-    if ($null -ne $Condition) { $arguments.Condition = $Condition }
     New-Item @arguments -PassThru:$PassThru
 }
 

@@ -68,21 +68,21 @@ Describe 'New-SqlDeploymentScript' {
                 '' > TestDrive:\two.sql
                 '' > TestDrive:\six.sql
             }
-            It 'Accumulates the Items as a SqlDeploymentScripts resource collection of the Manifest being built.' {
+            It 'Accumulates SqlDeploymentScripts into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.sql' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'six.sql' ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'two.sql' ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $manifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-SqlDeploymentScript -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
-                $manifest | Should -Not -BeNullOrEmpty
-                $manifest.ContainsKey('SqlDeploymentScripts') | Should -BeTrue
-                $manifest.SqlDeploymentScripts | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $manifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
+                $builtManifest | Should -Not -BeNullOrEmpty
+                $builtManifest.ContainsKey('SqlDeploymentScripts') | Should -BeTrue
+                $builtManifest.SqlDeploymentScripts | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
             }
         }
 
