@@ -34,8 +34,7 @@ Describe 'New-SqlDatabase' {
         Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-Manifest' {
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -PassThru } |
-                    Should -Throw -ExceptionType ([System.InvalidOperationException]) -ExpectedMessage 'ResourceManifest has not been properly initialized.'
-            }
+                    Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'The variable ''$Manifest'' cannot be retrieved because it has not been set.' }
         }
 
         Context 'Creating SqlDatabase must be done via the ScriptBlock passed to New-Manifest' {

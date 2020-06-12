@@ -73,12 +73,9 @@ function New-SqlDatabase {
         $PassThru
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    if ($null -eq [Resource]::Manifest -or ![Resource]::Manifest.ContainsKey('Application') -or [string]::IsNullOrEmpty([Resource]::Manifest.Application.Name)) {
-        throw ([System.InvalidOperationException]::new('ResourceManifest has not been properly initialized.'))
-    }
-    New-SqlDeploymentScript -Path (Join-Path $Path "$([Resource]::Manifest.Application.Name).Create.$Name.sql") -Condition $Condition -PassThru:$PassThru
-    New-SqlDeploymentScript -Path (Join-Path $Path "$([Resource]::Manifest.Application.Name).Create.$Name.Objects.sql") -Condition $Condition -PassThru:$PassThru
-    New-SqlUndeploymentScript -Path (Join-Path $Path "$([Resource]::Manifest.Application.Name).Drop.$Name.sql") -Condition $Condition -PassThru:$PassThru
+    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.sql") -Condition $Condition -PassThru:$PassThru
+    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.Objects.sql") -Condition $Condition -PassThru:$PassThru
+    New-SqlUndeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Drop.$Name.sql") -Condition $Condition -PassThru:$PassThru
 
     #TODO EnlistInBizTalkBackupJob
 }

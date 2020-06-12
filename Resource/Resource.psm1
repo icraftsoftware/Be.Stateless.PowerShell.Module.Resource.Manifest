@@ -20,49 +20,6 @@ using namespace Be.Stateless.PowerShell.Module.Resource.Manifest
 
 Set-StrictMode -Version Latest
 
-function Compare-Item {
-    [CmdletBinding()]
-    [OutputType([PSCustomObject[]])]
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNull()]
-        [ValidateScript( { $_.GetType().Name -eq 'PSCustomObject' })]
-        [PSCustomObject]
-        $ReferenceItem,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNull()]
-        [PSCustomObject]
-        $DifferenceItem
-    )
-    Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    $referenceProperties = @(Get-Member -InputObject $ReferenceItem -MemberType  NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
-    $differenceProperties = @(Get-Member -InputObject $DifferenceItem -MemberType  NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
-    $referenceProperties + $differenceProperties | Select-Object -Unique -PipelineVariable key | ForEach-Object -Process {
-        if ($referenceProperties.Contains($key) -and !$differenceProperties.Contains($key)) {
-            [PSCustomObject]@{Property = $key ; ReferenceValue = $ReferenceItem.$key ; SideIndicator = '<' ; DifferenceValue = $null } | Tee-Object -Variable difference
-            Write-Verbose -Message $difference
-        } elseif (!$referenceProperties.Contains($key) -and $differenceProperties.Contains($key)) {
-            [PSCustomObject]@{Property = $key ; ReferenceValue = $null ; SideIndicator = '>' ; DifferenceValue = $DifferenceItem.$key } | Tee-Object -Variable difference
-            Write-Verbose -Message $difference
-        } else {
-            $referenceValue, $differenceValue = $ReferenceItem.$key, $DifferenceItem.$key
-            if ($referenceValue -is [array] -or $differenceValue -is [array]) {
-                $arrayDifferences = Compare-Object -ReferenceObject $referenceValue -DifferenceObject $differenceValue
-                if ($arrayDifferences | Test-Any) {
-                    $uniqueReferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '<=' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
-                    $uniqueDifferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '=>' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
-                    [PSCustomObject]@{Property = $key ; ReferenceValue = "($uniqueReferenceValues)" ; SideIndicator = '<>' ; DifferenceValue = "($uniqueDifferenceValues)" } | Tee-Object -Variable difference
-                    Write-Verbose -Message $difference
-                }
-            } elseif ($referenceValue -ne $differenceValue) {
-                [PSCustomObject]@{Property = $key ; ReferenceValue = $referenceValue ; SideIndicator = '<>' ; DifferenceValue = $differenceValue } | Tee-Object -Variable difference
-                Write-Verbose -Message $difference
-            }
-        }
-    }
-}
-
 function New-Item {
     [CmdletBinding(DefaultParameterSetName = 'file-resource')]
     [OutputType([PSCustomObject[]])]
@@ -117,10 +74,10 @@ function New-Item {
         if ($PassThru) {
             $item
         } else {
-            if ([Resource]::Manifest.ContainsKey($Resource)) {
-                [Resource]::Manifest.$Resource = @([Resource]::Manifest.$Resource) + $item
+            if ($Manifest.ContainsKey($Resource)) {
+                $Manifest.$Resource = @($Manifest.$Resource) + $item
             } else {
-                [Resource]::Manifest.Add($Resource, $item)
+                $Manifest.Add($Resource, $item)
             }
         }
     }
@@ -161,15 +118,13 @@ function New-Manifest {
     if (![string]::IsNullOrWhiteSpace($Description)) { Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description }
     Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
 
-    # use [Resource]::Manifest thru a script block to allow for later hashtable unwrapping
-    $manifest = (& {
-            [Resource]::new(@{$Type = $item })
-            & $Build
-            [Resource]::Manifest
-            [Resource]::Reset()
-        })
-    # unwrap hashatable object, not sure why this is necessary
-    $manifest[1]
+    try {
+        New-Variable -Name Manifest -Value @{$Type = $item } -Scope global -Force
+        & $Build
+        $Manifest
+    } finally {
+        Remove-Variable -Name Manifest -Scope global -Force
+    }
 }
 
 #region helpers
@@ -201,6 +156,49 @@ function Add-ItemProperties {
             }
         }
         if ($PassThru) { $Item }
+    }
+}
+
+function Compare-Item {
+    [CmdletBinding()]
+    [OutputType([PSCustomObject[]])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNull()]
+        [ValidateScript( { $_.GetType().Name -eq 'PSCustomObject' })]
+        [PSCustomObject]
+        $ReferenceItem,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNull()]
+        [PSCustomObject]
+        $DifferenceItem
+    )
+    Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+    $referenceProperties = @(Get-Member -InputObject $ReferenceItem -MemberType  NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
+    $differenceProperties = @(Get-Member -InputObject $DifferenceItem -MemberType  NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
+    $referenceProperties + $differenceProperties | Select-Object -Unique -PipelineVariable key | ForEach-Object -Process {
+        if ($referenceProperties.Contains($key) -and !$differenceProperties.Contains($key)) {
+            [PSCustomObject]@{Property = $key ; ReferenceValue = $ReferenceItem.$key ; SideIndicator = '<' ; DifferenceValue = $null } | Tee-Object -Variable difference
+            Write-Verbose -Message $difference
+        } elseif (!$referenceProperties.Contains($key) -and $differenceProperties.Contains($key)) {
+            [PSCustomObject]@{Property = $key ; ReferenceValue = $null ; SideIndicator = '>' ; DifferenceValue = $DifferenceItem.$key } | Tee-Object -Variable difference
+            Write-Verbose -Message $difference
+        } else {
+            $referenceValue, $differenceValue = $ReferenceItem.$key, $DifferenceItem.$key
+            if ($referenceValue -is [array] -or $differenceValue -is [array]) {
+                $arrayDifferences = Compare-Object -ReferenceObject $referenceValue -DifferenceObject $differenceValue
+                if ($arrayDifferences | Test-Any) {
+                    $uniqueReferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '<=' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
+                    $uniqueDifferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '=>' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
+                    [PSCustomObject]@{Property = $key ; ReferenceValue = "($uniqueReferenceValues)" ; SideIndicator = '<>' ; DifferenceValue = "($uniqueDifferenceValues)" } | Tee-Object -Variable difference
+                    Write-Verbose -Message $difference
+                }
+            } elseif ($referenceValue -ne $differenceValue) {
+                [PSCustomObject]@{Property = $key ; ReferenceValue = $referenceValue ; SideIndicator = '<>' ; DifferenceValue = $differenceValue } | Tee-Object -Variable difference
+                Write-Verbose -Message $difference
+            }
+        }
     }
 }
 
@@ -236,17 +234,3 @@ function ConvertTo-DynamicProperties {
 }
 
 #endregion
-
-Add-Type -Language CSharp -TypeDefinition @"
-namespace Be.Stateless.PowerShell.Module.Resource.Manifest {
-    using System.Collections;
-	public class Resource {
-        public static Hashtable Manifest { get { return _manifest; } }
-        public static void Reset() { _manifest = null; }
-		public Resource(Hashtable manifest) {
-			_manifest = manifest;
-		}
-        private static Hashtable _manifest;
-	}
-}
-"@
