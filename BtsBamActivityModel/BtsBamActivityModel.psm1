@@ -46,5 +46,4 @@ function New-BamActivityModel {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name BamActivityModel -Value New-BamActivityModel

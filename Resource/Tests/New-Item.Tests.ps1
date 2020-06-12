@@ -25,10 +25,6 @@ Describe 'New-Item' {
     InModuleScope Resource {
 
         Context 'Creating a new named resource Item' {
-            BeforeAll {
-                # ensure Manifest variable is available while using the command outside of the New-Manifest -Build { BuildScriptBlock}
-                New-Variable -Name Manifest -Value @{ } -Scope Global
-            }
             It 'Throws when name is null.' {
                 { New-Item -Resource SomeResource -Name $null } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
@@ -49,9 +45,6 @@ Describe 'New-Item' {
 
                 $actualItems | Should -HaveCount 3
                 0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
-            }
-            AfterAll {
-                Remove-Variable -Name Manifest -Scope Global -Force
             }
         }
 
@@ -116,15 +109,15 @@ Describe 'New-Item' {
             }
         }
 
-        Context 'Creating a new resource Item with an inclusion Condition predicate' {
+        Context 'Creating a new resource Item with a Condition predicate' {
             It 'Throws when Condition is neither a bool nor a ScriptBlock.' {
-                { New-Item -Resource SomeResource -Name ActivityID -Condition 'some value' -Activity Process } | Should -Throw
+                { New-Item -Resource SomeResource -Name ActivityID -Condition 'some value' -Activity Process } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
             It 'Does not throw when Condition is a bool.' {
-                { New-Item -Resource SomeResource -Name ActivityID -Condition $false -Activity Process } | Should -Not -Throw
+                { New-Item -Resource SomeResource -Name ActivityID -Condition $false -Activity Process -PassThru } | Should -Not -Throw
             }
             It 'Does not throw when Condition is a ScriptBlock.' {
-                { New-Item -Resource SomeResource -Name ActivityID -Condition { $true } -Activity Process } | Should -Not -Throw
+                { New-Item -Resource SomeResource -Name ActivityID -Condition { $true } -Activity Process -PassThru } | Should -Not -Throw
             }
             It 'Returns a custom object without a Condition property if it is true.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Activity = 'Process' }

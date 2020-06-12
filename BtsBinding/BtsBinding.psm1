@@ -46,5 +46,4 @@ function New-Binding {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name Binding -Value New-Binding

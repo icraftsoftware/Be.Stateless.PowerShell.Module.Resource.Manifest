@@ -46,5 +46,4 @@ function New-Orchestration {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name Orchestration -Value New-Orchestration

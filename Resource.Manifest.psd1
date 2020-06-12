@@ -89,11 +89,10 @@
         # SqlUndeploymentScript.psm1
         'New-SqlUndeploymentScript',
         # Resource.psm1
-        'Compare-Item',
         'New-Item',
         'New-Manifest'
     )
     VariablesToExport     = @()
 
-    DefaultCommandPrefix  = 'Resource'
+    # DefaultCommandPrefix  = 'Resource'
 }

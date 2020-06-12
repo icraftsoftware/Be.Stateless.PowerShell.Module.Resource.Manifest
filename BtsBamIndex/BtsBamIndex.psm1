@@ -51,5 +51,4 @@ function New-BamIndex {
     New-Item @arguments -Activity $Activity -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name BamIndex -Value New-BamIndex

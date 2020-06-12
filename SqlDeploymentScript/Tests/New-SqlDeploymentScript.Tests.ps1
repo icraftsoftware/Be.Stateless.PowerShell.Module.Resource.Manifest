@@ -33,8 +33,6 @@ Describe 'New-SqlDeploymentScript' {
 
         Context 'When SqlDeploymentScript file exists' {
             BeforeAll {
-                # ensure Manifest variable is available while using the command outside of the New-Manifest -Build { BuildScriptBlock}
-                New-Variable -Name Manifest -Value @{ } -Scope Global
                 # create some empty files
                 '' > TestDrive:\one.sql
                 '' > TestDrive:\two.sql
@@ -56,9 +54,6 @@ Describe 'New-SqlDeploymentScript' {
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
-            }
-            AfterAll {
-                Remove-Variable -Name Manifest -Scope Global -Force
             }
         }
 

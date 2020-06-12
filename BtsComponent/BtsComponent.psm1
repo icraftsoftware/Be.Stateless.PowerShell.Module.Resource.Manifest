@@ -46,5 +46,4 @@ function New-Component {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name Component -Value New-Component

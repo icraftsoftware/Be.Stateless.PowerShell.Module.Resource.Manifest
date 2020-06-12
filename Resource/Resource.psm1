@@ -16,6 +16,8 @@
 
 #endregion
 
+using namespace Be.Stateless.PowerShell.Module.Resource.Manifest
+
 Set-StrictMode -Version Latest
 
 function Compare-Item {
@@ -103,27 +105,23 @@ function New-Item {
     $DynamicProperties = ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments
     if (-not($Condition -is [bool]) -or -not($Condition)) { $DynamicProperties.Add('Condition', $Condition) }
 
-    if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
-        $identity = $Name
-        $isNamedResource = $true
-    } else {
-        $identity = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        $isNamedResource = $false
-    }
-
-    $identity | ForEach-Object -Process {
+    $(if ($PSCmdlet.ParameterSetName -eq 'named-resource') { $Name } else { $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath }) | ForEach-Object -Process {
         $item = New-Object -TypeName PSCustomObject
-        if ($isNamedResource) {
+        if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
             Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $_
         } else {
             Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value (Split-Path -Path $_ -Leaf)
             Add-Member -InputObject $item -MemberType NoteProperty -Name Path -Value $_
         }
-        Add-ItemProperties -Item $item -DynamicProperties $DynamicProperties -PassThru:$PassThru
-        if ($Manifest.ContainsKey($Resource)) {
-            $Manifest.$Resource = @($Manifest.$Resource) + $item
+        Add-ItemProperties -Item $item -DynamicProperties $DynamicProperties
+        if ($PassThru) {
+            $item
         } else {
-            $Manifest.Add($Resource, $item)
+            if ([Resource]::Manifest.ContainsKey($Resource)) {
+                [Resource]::Manifest.$Resource = @([Resource]::Manifest.$Resource) + $item
+            } else {
+                [Resource]::Manifest.Add($Resource, $item)
+            }
         }
     }
 }
@@ -160,22 +158,18 @@ function New-Manifest {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $item = New-Object -TypeName PSCustomObject
     Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $Name
-    Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
+    if (![string]::IsNullOrWhiteSpace($Description)) { Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description }
     Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
 
-    $manifestBuildScript = [scriptblock] {
-        [CmdletBinding()]
-        [OutputType([void])]
-        param (
-            [Parameter(Mandatory = $true)]
-            [ValidateNotNullOrEmpty()]
-            [hashtable]
-            $Manifest
-        )
-        . $Build
-        $Manifest
-    }
-    & $manifestBuildScript -Manifest @{ $Type = $item }
+    # use [Resource]::Manifest thru a script block to allow for later hashtable unwrapping
+    $manifest = (& {
+            [Resource]::new(@{$Type = $item })
+            & $Build
+            [Resource]::Manifest
+            [Resource]::Reset()
+        })
+    # unwrap hashatable object, not sure why this is necessary
+    $manifest[1]
 }
 
 #region helpers
@@ -242,3 +236,17 @@ function ConvertTo-DynamicProperties {
 }
 
 #endregion
+
+Add-Type -Language CSharp -TypeDefinition @"
+namespace Be.Stateless.PowerShell.Module.Resource.Manifest {
+    using System.Collections;
+	public class Resource {
+        public static Hashtable Manifest { get { return _manifest; } }
+        public static void Reset() { _manifest = null; }
+		public Resource(Hashtable manifest) {
+			_manifest = manifest;
+		}
+        private static Hashtable _manifest;
+	}
+}
+"@

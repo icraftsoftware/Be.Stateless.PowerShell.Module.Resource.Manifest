@@ -46,5 +46,4 @@ function New-SqlDeploymentScript {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name SqlDeploymentScript -Value New-SqlDeploymentScript

@@ -54,12 +54,10 @@ Describe 'New-Manifest' {
         }
 
         Context 'Resource items can be accumulated in a Manifest' {
-            It 'Makes a Manifest variable available to the build ScriptBlock.' {
-                { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
+            It 'Initializes a manifest prior to calling the manifest build ScriptBlock.' {
                 New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    $Manifest | Should -Not -Be $null
+                    [Resource]::Manifest.Application.Name | Should -Be BizTalk.Factory
                 }
-                { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
             }
         }
 

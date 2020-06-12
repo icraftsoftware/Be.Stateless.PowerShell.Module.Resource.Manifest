@@ -46,5 +46,4 @@ function New-Schema {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name Schema -Value New-Schema

@@ -46,5 +46,4 @@ function New-Pipeline {
     New-Item @arguments -PassThru:$PassThru
 }
 
-Import-Module -Name $PSScriptRoot\..\Resource
 Set-Alias -Name Pipeline -Value New-Pipeline

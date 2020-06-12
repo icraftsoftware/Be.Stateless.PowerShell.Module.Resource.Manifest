@@ -33,8 +33,6 @@ Describe 'New-Transform' {
 
         Context 'When Transform file exists' {
             BeforeAll {
-                # ensure Manifest variable is available while using the command outside of the New-Manifest -Build { BuildScriptBlock}
-                New-Variable -Name Manifest -Value @{ } -Scope Global
                 # create some empty files
                 '' > TestDrive:\one.txt
                 '' > TestDrive:\two.txt
@@ -56,9 +54,6 @@ Describe 'New-Transform' {
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
-            }
-            AfterAll {
-                Remove-Variable -Name Manifest -Scope Global -Force
             }
         }
 

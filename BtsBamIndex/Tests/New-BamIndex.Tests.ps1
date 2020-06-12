@@ -32,10 +32,6 @@ Describe 'New-BamIndex' {
         }
 
         Context 'When BamIndex file exists' {
-            BeforeAll {
-                # ensure Manifest variable is available while using the command outside of the New-Manifest -Build { BuildScriptBlock}
-                New-Variable -Name Manifest -Value @{ } -Scope Global
-            }
             It 'Returns a custom object with both a path and a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'BeginTime' ; Activity = 'Process' }
 
@@ -53,9 +49,6 @@ Describe 'New-BamIndex' {
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
-            }
-            AfterAll {
-                Remove-Variable -Name Manifest -Scope Global -Force
             }
         }
 

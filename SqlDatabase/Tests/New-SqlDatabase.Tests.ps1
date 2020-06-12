@@ -22,6 +22,22 @@ Import-Module -Name $PSScriptRoot\..\..\Resource -Force
 Describe 'New-SqlDatabase' {
     InModuleScope SqlDatabase {
 
+        Context 'When assembly file does not exist' {
+            BeforeAll {
+                $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
+            }
+            It 'Throws a ParameterBindingValidationException.' {
+                { New-SqlDatabase -Name CustomDb -Server localhost -Path z:\folder } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+            }
+        }
+
+        Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-Manifest' {
+            It 'Returns a collection of custom objects with both a path and a name property.' {
+                { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -PassThru } |
+                    Should -Throw -ExceptionType ([System.InvalidOperationException]) -ExpectedMessage 'ResourceManifest has not been properly initialized.'
+            }
+        }
+
         Context 'Creating SqlDatabase must be done via the ScriptBlock passed to New-Manifest' {
             BeforeAll {
                 '' > TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql
@@ -48,7 +64,7 @@ Describe 'New-SqlDatabase' {
                 0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedDeploymentItems[$_] -DifferenceItem $builtManifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
 
                 $builtManifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
-                $builtManifest.SqlDeploymentScripts | Should -HaveCount 1
+                $builtManifest.SqlUndeploymentScripts | Should -HaveCount 1
                 Compare-Item -ReferenceItem $expectedUndeploymentItems[0] -DifferenceItem $builtManifest.SqlUndeploymentScripts[0] | Should -BeNullOrEmpty
             }
         }
