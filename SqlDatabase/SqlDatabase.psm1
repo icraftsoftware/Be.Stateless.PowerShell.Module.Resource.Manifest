@@ -73,9 +73,9 @@ function New-SqlDatabase {
         $PassThru
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.sql") -Condition $Condition -PassThru:$PassThru
-    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.Objects.sql") -Condition $Condition -PassThru:$PassThru
-    New-SqlUndeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Drop.$Name.sql") -Condition $Condition -PassThru:$PassThru
+    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.sql") -Server $Server -Condition $Condition -PassThru:$PassThru
+    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.Objects.sql") -Server $Server -Condition $Condition -PassThru:$PassThru
+    New-SqlUndeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Drop.$Name.sql") -Server $Server -Condition $Condition -PassThru:$PassThru
 
     #TODO EnlistInBizTalkBackupJob
 }

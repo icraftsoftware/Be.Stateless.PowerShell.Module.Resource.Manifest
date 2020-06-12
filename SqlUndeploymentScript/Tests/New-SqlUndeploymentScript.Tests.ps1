@@ -38,19 +38,19 @@ Describe 'New-SqlUndeploymentScript' {
                 '' > TestDrive:\two.sql
             }
             It 'Returns a custom object with both a path and a name property.' {
-                $expectedItem = [PSCustomObject]@{ Name = 'one.sql' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                $expectedItem = [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
 
-                $actualItem = New-SqlUndeploymentScript -Path TestDrive:\one.sql -PassThru
+                $actualItem = New-SqlUndeploymentScript -Path TestDrive:\one.sql -Server localhost -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.sql' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'two.sql' ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $actualItems = New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -PassThru
+                $actualItems = New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -Server localhost -PassThru
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
@@ -66,13 +66,13 @@ Describe 'New-SqlUndeploymentScript' {
             }
             It 'Accumulates SqlUndeploymentScripts into the Manifest being built.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.sql' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'six.sql' ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'two.sql' ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'six.sql' ; Server = 'localhost' ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\)
+                    New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -Server localhost
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty

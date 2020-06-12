@@ -44,6 +44,18 @@ Describe 'New-Binding' {
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
+            It 'Returns an object with EnvironmentSettingOverridesRootPath and AssemblyProbingPaths.' {
+                $expectedItem = [PSCustomObject]@{
+                    Name                                = 'one.txt'
+                    Path                                = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+                    EnvironmentSettingOverridesRootPath = 'c:\folder'
+                    AssemblyProbingPaths                = 'c:\folder1', 'c:\folder2'
+                }
+
+                $actualItem = New-Binding -Path TestDrive:\one.txt -EnvironmentSettingOverridesRootPath c:\folder -AssemblyProbingPaths c:\folder1, c:\folder2 -PassThru
+
+                Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+            }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }

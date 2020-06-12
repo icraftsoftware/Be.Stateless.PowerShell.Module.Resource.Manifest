@@ -28,6 +28,16 @@ function New-Binding {
         $Path,
 
         [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $EnvironmentSettingOverridesRootPath,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $AssemblyProbingPaths,
+
+        [Parameter(Mandatory = $false)]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
@@ -43,6 +53,8 @@ function New-Binding {
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
+    if (![string]::IsNullOrWhiteSpace($EnvironmentSettingOverridesRootPath)) { $arguments.EnvironmentSettingOverridesRootPath = $EnvironmentSettingOverridesRootPath }
+    if ($AssemblyProbingPaths | Test-Any) { $arguments.AssemblyProbingPaths = $AssemblyProbingPaths }
     New-Item @arguments -PassThru:$PassThru
 }
 
