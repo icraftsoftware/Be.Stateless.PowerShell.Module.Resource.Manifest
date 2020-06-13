@@ -16,8 +16,6 @@
 
 #endregion
 
-using namespace Be.Stateless.PowerShell.Module.Resource.Manifest
-
 Set-StrictMode -Version Latest
 
 function New-Item {
