@@ -133,5 +133,37 @@ Describe 'Compare-Item' {
          }
       }
 
+      Context 'When Items have a hashtable property' {
+         It 'Returns nothing.' {
+            $left = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ prop = 'value' } }
+            $right = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ prop = 'value' } }
+
+            Compare-Item -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
+         }
+         It 'Returns ''hashtable.one 1 <'', ''hashtable.six 6 <> 9'', ''hashtable.two > 2''.' {
+            $left = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ one = '1' ; six = '6' } }
+            $right = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ two = '2' ; six = '9' } }
+
+            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+
+            $result.Length | Should -Be 3
+
+            $result[0].Key | Should -Be 'hashtable.one'
+            $result[0].ReferenceValue | Should -Be '1'
+            $result[0].SideIndicator | Should -Be '<'
+            $result[0].DifferenceValue | Should -Be $null
+
+            $result[1].Key | Should -Be 'hashtable.six'
+            $result[1].ReferenceValue | Should -Be '6'
+            $result[1].SideIndicator | Should -Be '<>'
+            $result[1].DifferenceValue | Should -Be '9'
+
+            $result[2].Key | Should -Be 'hashtable.two'
+            $result[2].ReferenceValue | Should -Be $null
+            $result[2].SideIndicator | Should -Be '>'
+            $result[2].DifferenceValue | Should -Be '2'
+         }
+      }
+
    }
 }

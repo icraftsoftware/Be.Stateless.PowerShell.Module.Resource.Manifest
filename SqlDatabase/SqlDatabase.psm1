@@ -61,6 +61,11 @@ function New-SqlDatabase {
         $EnlistInBizTalkBackupJob,
 
         [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [hashtable]
+        $Variables = @{},
+
+        [Parameter(Mandatory = $false)]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
@@ -71,11 +76,29 @@ function New-SqlDatabase {
         $PassThru
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.sql") -Server $Server -Condition $Condition -PassThru:$PassThru
-    New-SqlDeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$Name.Objects.sql") -Server $Server -Condition $Condition -PassThru:$PassThru
-    New-SqlUndeploymentScript -Path (Join-Path $Path "$($Manifest.Application.Name).Drop.$Name.sql") -Server $Server -Condition $Condition -PassThru:$PassThru
 
-    #TODO EnlistInBizTalkBackupJob
+    $arguments = @{
+        Server    = $Server
+        Condition = $Condition
+    }
+    if ($Variables.Keys | Test-Any) { $arguments.Variables = $Variables }
+
+    $Name | ForEach-Object -Process {
+        New-SqlDeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$_.sql") -PassThru:$PassThru
+        New-SqlDeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$_.Objects.sql") -PassThru:$PassThru
+        New-SqlUndeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Application.Name).Drop.$_.sql") -PassThru:$PassThru
+
+        if ($EnlistInBizTalkBackupJob) {
+            New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server $Server -Condition $Condition -PassThru:$PassThru `
+                -Variables @{
+                CustomDatabaseName = $_
+                ServerName         = $Server
+                BTSServer          = $env:COMPUTERNAME
+            }
+            New-SqlUndeploymentScript -Path (Join-Path $PSScriptRoot 'RemoveCustomDatabaseFromOtherBackupDatabases.sql') -Server $Server -Condition $Condition -PassThru:$PassThru `
+                -Variables @{ CustomDatabaseName = $_ }
+        }
+    }
 }
 
 Set-Alias -Name SqlDatabase -Value New-SqlDatabase

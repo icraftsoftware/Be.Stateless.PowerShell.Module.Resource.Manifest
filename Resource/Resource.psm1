@@ -185,7 +185,7 @@ function Compare-Item {
             Write-Verbose -Message $difference
         } else {
             $referenceValue, $differenceValue = $ReferenceItem.$key, $DifferenceItem.$key
-            if ($referenceValue -is [array] -or $differenceValue -is [array]) {
+            if ($referenceValue -is [array] -and $differenceValue -is [array]) {
                 $arrayDifferences = Compare-Object -ReferenceObject $referenceValue -DifferenceObject $differenceValue
                 if ($arrayDifferences | Test-Any) {
                     $uniqueReferenceValues = $arrayDifferences | Where-Object -FilterScript { $_.SideIndicator -eq '<=' } | ForEach-Object -Process { $_.InputObject } | Join-String -Separator ", "
@@ -193,6 +193,8 @@ function Compare-Item {
                     [PSCustomObject]@{Property = $key ; ReferenceValue = "($uniqueReferenceValues)" ; SideIndicator = '<>' ; DifferenceValue = "($uniqueDifferenceValues)" } | Tee-Object -Variable difference
                     Write-Verbose -Message $difference
                 }
+            } elseif ($referenceValue -is [hashtable] -and $differenceValue -is [hashtable]) {
+                Compare-HashTable -ReferenceHashTable $referenceValue -DifferenceHashTable $differenceValue -Prefix "$Key"
             } elseif ($referenceValue -ne $differenceValue) {
                 [PSCustomObject]@{Property = $key ; ReferenceValue = $referenceValue ; SideIndicator = '<>' ; DifferenceValue = $differenceValue } | Tee-Object -Variable difference
                 Write-Verbose -Message $difference

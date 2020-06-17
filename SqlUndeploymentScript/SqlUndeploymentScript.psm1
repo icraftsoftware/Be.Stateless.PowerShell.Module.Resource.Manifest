@@ -33,6 +33,11 @@ function New-SqlUndeploymentScript {
         $Server,
 
         [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [hashtable]
+        $Variables = @{},
+
+        [Parameter(Mandatory = $false)]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
         [ValidateNotNullOrEmpty()]
         [psobject]
@@ -47,6 +52,7 @@ function New-SqlUndeploymentScript {
         Resource  = 'SqlUndeploymentScripts'
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Server    = $Server
+        Variables = $Variables
         Condition = $Condition
     }
     New-Item @arguments -PassThru:$PassThru
