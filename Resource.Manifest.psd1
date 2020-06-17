@@ -28,6 +28,7 @@
     PowerShellVersion     = '5.0'
     NestedModules         = @(
         'Assembly\Assembly.psm1',
+        'BtsApplication\BtsApplication.psm1',
         'BtsBamActivityModel\BtsBamActivityModel.psm1',
         'BtsBamIndex\BtsBamIndex.psm1',
         'BtsBinding\BtsBinding.psm1',
@@ -46,6 +47,7 @@
     RequiredModules       = @()
 
     AliasesToExport       = @(
+        'ApplicationManifest',
         'Assembly',
         'BamActivityModel',
         'BamIndex',
@@ -64,6 +66,8 @@
     FunctionsToExport     = @(
         # Assembly.psm1
         'New-Assembly',
+        # BtsApplication.psm1
+        'New-ApplicationManifest',
         # BtsBamActivityModel.psm1
         'New-BamActivityModel',
         # BtsBamIndex.psm1
@@ -93,6 +97,4 @@
         'New-Manifest'
     )
     VariablesToExport     = @()
-
-    # DefaultCommandPrefix  = 'Resource'
 }
