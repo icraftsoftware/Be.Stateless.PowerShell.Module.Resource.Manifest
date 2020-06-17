@@ -30,12 +30,12 @@ function New-Binding {
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $EnvironmentSettingOverridesRootPath,
+        $EnvironmentSettingOverridesRootPath = $null,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string[]]
-        $AssemblyProbingPaths,
+        $AssemblyProbingPaths = @(),
 
         [Parameter(Mandatory = $false)]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
@@ -49,12 +49,12 @@ function New-Binding {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'Bindings'
-        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        Condition = $Condition
+        Resource                            = 'Bindings'
+        Path                                = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Condition                           = $Condition
+        EnvironmentSettingOverridesRootPath = $EnvironmentSettingOverridesRootPath
+        AssemblyProbingPaths                = $AssemblyProbingPaths
     }
-    if (![string]::IsNullOrWhiteSpace($EnvironmentSettingOverridesRootPath)) { $arguments.EnvironmentSettingOverridesRootPath = $EnvironmentSettingOverridesRootPath }
-    if ($AssemblyProbingPaths | Test-Any) { $arguments.AssemblyProbingPaths = $AssemblyProbingPaths }
     New-Item @arguments -PassThru:$PassThru
 }
 

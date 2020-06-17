@@ -52,7 +52,8 @@ function New-Item {
 
         [Parameter(DontShow, Mandatory = $false, ParameterSetName = 'named-resource', ValueFromRemainingArguments = $true)]
         [Parameter(DontShow, Mandatory = $false, ParameterSetName = 'file-resource', ValueFromRemainingArguments = $true)]
-        [ValidateNotNullOrEmpty()]
+        [AllowEmptyString()]
+        [AllowEmptyCollection()]
         [object[]]
         $UnboundArguments = @()
     )
@@ -96,7 +97,7 @@ function New-Manifest {
         $Name,
 
         [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
+        [AllowNull()]
         [string]
         $Description,
 
@@ -113,7 +114,7 @@ function New-Manifest {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $item = New-Object -TypeName PSCustomObject
     Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $Name
-    if (![string]::IsNullOrWhiteSpace($Description)) { Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description }
+    Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
     Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
 
     try {
