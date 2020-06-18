@@ -58,6 +58,7 @@ function New-Item {
         $UnboundArguments = @()
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
+
     $DynamicProperties = ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments
     if (-not($Condition -is [bool]) -or -not($Condition)) { $DynamicProperties.Add('Condition', $Condition) }
 
@@ -73,6 +74,10 @@ function New-Item {
         if ($PassThru) {
             $item
         } else {
+            # TODO support $ItemUnicityScope
+            # TODO write-verbose no matter the ItemUnicityScope
+            # TODO ?? write-error about Item redefinition according to the ItemUnicityScope,
+            # unicity => where Path is the unique criterium xor all the properties must be unique
             if ($Manifest.ContainsKey($Resource)) {
                 $Manifest.$Resource = @($Manifest.$Resource) + $item
             } else {
@@ -100,6 +105,11 @@ function New-Manifest {
         [AllowNull()]
         [string]
         $Description,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Manifest', 'Resource', 'None')]
+        [string]
+        $ItemUnicityScope = 'Manifest',
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
