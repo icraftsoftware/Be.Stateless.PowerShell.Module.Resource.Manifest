@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2020 François Chabot
 #
@@ -44,7 +44,7 @@
         'Resource\Resource.psm1'
     )
     RequiredAssemblies    = @()
-    RequiredModules       = @()
+    RequiredModules       = @('Psx')
 
     AliasesToExport       = @(
         'ApplicationManifest',
