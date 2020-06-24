@@ -1,4 +1,4 @@
-﻿# Be.Stateless.PowerShell.Module.Resource.Manifest
+# Be.Stateless.PowerShell.Module.Resource.Manifest
 
 [![Build Status](https://dev.azure.com/icraftsoftware/be.stateless/_apis/build/status/Be.Stateless.PowerShell.Module.Resource.Manifest%20Manual%20Release?branchName=master)](https://dev.azure.com/icraftsoftware/be.stateless/_build/latest?definitionId=26&branchName=master)
 [![GitHub Release](https://img.shields.io/github/v/release/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest)](https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/releases/latest)
