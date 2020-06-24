@@ -27,7 +27,7 @@ Describe 'New-SqlDatabase' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-SqlDatabase -Name CustomDb -Server localhost -Path z:\folder } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-SqlDatabase -Name CustomDb -Server localhost -Path c:\folder } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

@@ -27,7 +27,7 @@ Describe 'New-PipelineComponent' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-PipelineComponent -Path 'z:\PipelineComponent.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-PipelineComponent -Path 'c:\PipelineComponent.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

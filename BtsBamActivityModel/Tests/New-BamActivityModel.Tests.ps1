@@ -27,7 +27,7 @@ Describe 'New-BamActivityModel' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-BamActivityModel -Path 'z:\BamActivityModel.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-BamActivityModel -Path 'c:\BamActivityModel.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

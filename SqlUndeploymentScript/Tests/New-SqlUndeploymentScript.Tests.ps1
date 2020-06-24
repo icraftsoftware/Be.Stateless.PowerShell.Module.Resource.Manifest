@@ -27,7 +27,7 @@ Describe 'New-SqlUndeploymentScript' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-SqlUndeploymentScript -Path 'z:\SqlUndeploymentScript.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-SqlUndeploymentScript -Path 'c:\SqlUndeploymentScript.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

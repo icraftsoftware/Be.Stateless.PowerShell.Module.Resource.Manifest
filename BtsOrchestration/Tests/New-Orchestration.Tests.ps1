@@ -27,7 +27,7 @@ Describe 'New-Orchestration' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-Orchestration -Path 'z:\Orchestration.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Orchestration -Path 'c:\Orchestration.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

@@ -27,7 +27,7 @@ Describe 'New-Transform' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-Transform -Path 'z:\Transform.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Transform -Path 'c:\Transform.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

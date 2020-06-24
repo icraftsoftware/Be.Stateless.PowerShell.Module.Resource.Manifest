@@ -58,7 +58,7 @@ Describe 'New-Item' {
                 '' > TestDrive:\six.txt
             }
             It 'Throws when path is invalid.' {
-                { New-Item -Resource SomeResource -Path 'z:\folder\file.txt' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Item -Resource SomeResource -Path 'c:\folder\file.txt' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
             It 'Returns a custom object with both a path and a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }

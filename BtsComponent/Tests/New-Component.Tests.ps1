@@ -27,7 +27,7 @@ Describe 'New-Component' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-Component -Path 'z:\component.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Component -Path 'c:\component.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

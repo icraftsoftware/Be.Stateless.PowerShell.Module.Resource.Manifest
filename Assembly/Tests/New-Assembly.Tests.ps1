@@ -27,7 +27,7 @@ Describe 'New-Assembly' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-Assembly -Path 'z:\assembly.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Assembly -Path 'c:\assembly.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 

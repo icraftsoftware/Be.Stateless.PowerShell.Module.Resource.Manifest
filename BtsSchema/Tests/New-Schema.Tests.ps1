@@ -27,7 +27,7 @@ Describe 'New-Schema' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-Schema -Path 'z:\Schema.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Schema -Path 'c:\Schema.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 
