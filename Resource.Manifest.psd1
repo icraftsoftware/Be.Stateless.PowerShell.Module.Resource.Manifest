@@ -99,7 +99,7 @@
     VariablesToExport     = @()
     PrivateData           = @{
         PSData = @{
-            Tags                       = @('Item Group', 'Resource Group', 'Declarative', 'PowerShell')
+            Tags                       = @('Item', 'Resource', 'Group', 'Declarative', 'PowerShell')
             LicenseUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/blob/master/LICENSE'
             ProjectUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest'
             ExternalModuleDependencies = @('Psx')
