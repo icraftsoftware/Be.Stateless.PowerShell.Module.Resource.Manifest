@@ -18,8 +18,6 @@
 
 @{
     RootModule            = 'Resource.Manifest.psm1'
-    ModuleVersion         = '1.0.0.0'
-    GUID                  = 'd89d38a7-af47-4966-8f5d-32145085003f'
     Author                = 'François Chabot'
     CompanyName           = 'be.stateless'
     Copyright             = '(c) 2020 be.stateless. All rights reserved.'
@@ -99,9 +97,10 @@
     VariablesToExport     = @()
     PrivateData           = @{
         PSData = @{
-            Tags       = @('Item Group', 'Resource Group', 'Declarative', 'PowerShell')
-            LicenseUri = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/blob/master/LICENSE'
-            ProjectUri = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest'
+            Tags                       = @('Item Group', 'Resource Group', 'Declarative', 'PowerShell')
+            LicenseUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/blob/master/LICENSE'
+            ProjectUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest'
+            ExternalModuleDependencies = @('Psx')
         }
     }
 }

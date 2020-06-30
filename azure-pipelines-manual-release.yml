@@ -12,4 +12,4 @@ extends:
   parameters:
     Major: 1
     Minor: 0
-    SkipTest: false
+    SkipTest: true
