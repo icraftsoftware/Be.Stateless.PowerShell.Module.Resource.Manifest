@@ -19,6 +19,7 @@
 @{
     RootModule            = 'Resource.Manifest.psm1'
     ModuleVersion         = '1.0.0.0'
+    GUID                  = '07e35b0e-3441-46b4-82e6-d8daafb837bd'
     Author                = 'François Chabot'
     CompanyName           = 'be.stateless'
     Copyright             = '(c) 2020 be.stateless. All rights reserved.'
