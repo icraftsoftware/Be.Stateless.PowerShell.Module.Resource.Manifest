@@ -127,13 +127,22 @@ function New-Manifest {
     Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
     Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
 
-    try {
-        New-Variable -Name Manifest -Value @{$Type = $item } -Scope global -Force
-        & $Build
-        $Manifest
-    } finally {
-        Remove-Variable -Name Manifest -Scope global -Force
+    $manifestBuildScript = [scriptblock] {
+        [CmdletBinding()]
+        [OutputType([void])]
+        param (
+            [Parameter(Mandatory = $true)]
+            [ValidateNotNullOrEmpty()]
+            [hashtable]
+            $Manifest
+        )
+        . $Build
     }
+
+    $manifest = @{ }
+    $manifest.Add($Type, $item)
+    & $manifestBuildScript -Manifest $manifest
+    $manifest
 }
 
 #region helpers
