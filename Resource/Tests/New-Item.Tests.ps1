@@ -16,13 +16,13 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Item' {
     BeforeAll {
         $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
     }
-    InModuleScope Resource {
+    InModuleScope Resource.Manifest {
 
         Context 'Creating a new named resource Item' {
             It 'Throws when name is null.' {

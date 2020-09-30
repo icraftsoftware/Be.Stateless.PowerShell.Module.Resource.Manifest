@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsBinding -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Binding' {
-    InModuleScope BtsBinding {
+    InModuleScope Resource.Manifest {
 
         Context 'When binding file does not exist' {
             BeforeAll {

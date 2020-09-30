@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsTransform -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Transform' {
-    InModuleScope BtsTransform {
+    InModuleScope Resource.Manifest {
 
         Context 'When Transform file does not exist' {
             BeforeAll {

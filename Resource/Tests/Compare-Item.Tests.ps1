@@ -16,10 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'Compare-Item' {
-   InModuleScope Resource {
+   InModuleScope Resource.Manifest {
 
       Context 'When both Items are null' {
          It 'Returns nothing.' {

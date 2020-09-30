@@ -26,23 +26,7 @@
     Description           = 'Commands to define and process resource manifests that can later be used to drive operations, in a declarative way, according to the nature of the resources to operate upon.'
     ProcessorArchitecture = 'None'
     PowerShellVersion     = '5.0'
-    NestedModules         = @(
-        'Assembly\Assembly.psm1',
-        'BtsApplication\BtsApplication.psm1',
-        'BtsBamActivityModel\BtsBamActivityModel.psm1',
-        'BtsBamIndex\BtsBamIndex.psm1',
-        'BtsBinding\BtsBinding.psm1',
-        'BtsComponent\BtsComponent.psm1',
-        'BtsOrchestration\BtsOrchestration.psm1',
-        'BtsPipeline\BtsPipeline.psm1',
-        'BtsPipelineComponent\BtsPipelineComponent.psm1',
-        'BtsSchema\BtsSchema.psm1',
-        'BtsTransform\BtsTransform.psm1',
-        'SqlDatabase\SqlDatabase.psm1',
-        'SqlDeploymentScript\SqlDeploymentScript.psm1',
-        'SqlUndeploymentScript\SqlUndeploymentScript.psm1',
-        'Resource\Resource.psm1'
-    )
+    NestedModules         = @()
     RequiredAssemblies    = @()
     RequiredModules       = @('Psx')
 
@@ -64,35 +48,35 @@
     )
     CmdletsToExport       = @()
     FunctionsToExport     = @(
-        # Assembly.psm1
+        # Assembly.ps1
         'New-Assembly',
-        # BtsApplication.psm1
+        # BtsApplication.ps1
         'New-ApplicationManifest',
-        # BtsBamActivityModel.psm1
+        # BtsBamActivityModel.ps1
         'New-BamActivityModel',
-        # BtsBamIndex.psm1
+        # BtsBamIndex.ps1
         'New-BamIndex',
-        # BtsBinding.psm1
+        # BtsBinding.ps1
         'New-Binding',
-        # BtsComponent.psm1
+        # BtsComponent.ps1
         'New-Component',
-        # BtsOrchestration.psm1
+        # BtsOrchestration.ps1
         'New-Orchestration',
-        # BtsPipeline.psm1
+        # BtsPipeline.ps1
         'New-Pipeline',
-        # BtsPipelineComponent.psm1
+        # BtsPipelineComponent.ps1
         'New-PipelineComponent',
-        # BtsSchema.psm1
+        # BtsSchema.ps1
         'New-Schema',
-        # BtsTransform.psm1
+        # BtsTransform.ps1
         'New-Transform',
-        # SqlDatabase.psm1
+        # SqlDatabase.ps1
         'New-SqlDatabase',
-        # SqlDeploymentScript.psm1
+        # SqlDeploymentScript.ps1
         'New-SqlDeploymentScript',
-        # SqlUndeploymentScript.psm1
+        # SqlUndeploymentScript.ps1
         'New-SqlUndeploymentScript',
-        # Resource.psm1
+        # Resource.ps1
         'New-Item',
         'New-Manifest'
     )

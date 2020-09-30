@@ -16,10 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Manifest' {
-    InModuleScope Resource {
+    InModuleScope Resource.Manifest {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {

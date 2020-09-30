@@ -17,3 +17,19 @@
 #endregion
 
 Set-StrictMode -Version Latest
+
+. $PSScriptRoot\Assembly\Assembly.ps1
+. $PSScriptRoot\BtsApplication\BtsApplication.ps1
+. $PSScriptRoot\BtsBamActivityModel\BtsBamActivityModel.ps1
+. $PSScriptRoot\BtsBamIndex\BtsBamIndex.ps1
+. $PSScriptRoot\BtsBinding\BtsBinding.ps1
+. $PSScriptRoot\BtsComponent\BtsComponent.ps1
+. $PSScriptRoot\BtsOrchestration\BtsOrchestration.ps1
+. $PSScriptRoot\BtsPipeline\BtsPipeline.ps1
+. $PSScriptRoot\BtsPipelineComponent\BtsPipelineComponent.ps1
+. $PSScriptRoot\BtsSchema\BtsSchema.ps1
+. $PSScriptRoot\BtsTransform\BtsTransform.ps1
+. $PSScriptRoot\Resource\Resource.ps1
+. $PSScriptRoot\SqlDatabase\SqlDatabase.ps1
+. $PSScriptRoot\SqlDeploymentScript\SqlDeploymentScript.ps1
+. $PSScriptRoot\SqlUndeploymentScript\SqlUndeploymentScript.ps1

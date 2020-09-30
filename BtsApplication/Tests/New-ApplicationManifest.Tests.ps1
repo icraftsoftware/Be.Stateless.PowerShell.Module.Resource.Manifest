@@ -16,10 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsApplication -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-ApplicationManifest' {
-    InModuleScope BtsApplication {
+    InModuleScope Resource.Manifest {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {

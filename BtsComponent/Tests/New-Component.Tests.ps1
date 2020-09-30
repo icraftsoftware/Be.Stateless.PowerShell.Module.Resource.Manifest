@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsComponent -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Component' {
-    InModuleScope BtsComponent {
+    InModuleScope Resource.Manifest {
 
         Context 'When component file does not exist' {
             BeforeAll {

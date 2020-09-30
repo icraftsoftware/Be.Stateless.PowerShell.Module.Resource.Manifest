@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsPipeline -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Pipeline' {
-    InModuleScope BtsPipeline {
+    InModuleScope Resource.Manifest {
 
         Context 'When Pipeline file does not exist' {
             BeforeAll {

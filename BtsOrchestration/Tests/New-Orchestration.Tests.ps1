@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsOrchestration -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Orchestration' {
-    InModuleScope BtsOrchestration {
+    InModuleScope Resource.Manifest {
 
         Context 'When Orchestration file does not exist' {
             BeforeAll {

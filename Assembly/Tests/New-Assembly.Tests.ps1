@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\Assembly -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Assembly' {
-    InModuleScope Assembly {
+    InModuleScope Resource.Manifest {
 
         Context 'When assembly file does not exist' {
             BeforeAll {

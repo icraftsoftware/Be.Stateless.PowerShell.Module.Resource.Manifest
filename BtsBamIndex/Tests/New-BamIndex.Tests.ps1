@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsBamIndex -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-BamIndex' {
-    InModuleScope BtsBamIndex {
+    InModuleScope Resource.Manifest {
 
         Context 'When BamIndex file does not exist' {
             BeforeAll {

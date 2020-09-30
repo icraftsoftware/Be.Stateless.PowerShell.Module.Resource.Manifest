@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\SqlDeploymentScript -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-SqlDeploymentScript' {
-    InModuleScope SqlDeploymentScript {
+    InModuleScope Resource.Manifest {
 
         Context 'When SqlDeploymentScript file does not exist' {
             BeforeAll {

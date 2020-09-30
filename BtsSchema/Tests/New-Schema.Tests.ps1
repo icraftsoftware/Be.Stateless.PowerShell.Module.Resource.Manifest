@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsSchema -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-Schema' {
-    InModuleScope BtsSchema {
+    InModuleScope Resource.Manifest {
 
         Context 'When Schema file does not exist' {
             BeforeAll {

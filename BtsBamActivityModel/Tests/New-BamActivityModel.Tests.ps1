@@ -16,11 +16,10 @@
 
 #endregion
 
-Import-Module -Name $PSScriptRoot\..\BtsBamActivityModel -Force
-Import-Module -Name $PSScriptRoot\..\..\Resource -Force
+Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
 Describe 'New-BamActivityModel' {
-    InModuleScope BtsBamActivityModel {
+    InModuleScope Resource.Manifest {
 
         Context 'When BamActivityModel file does not exist' {
             BeforeAll {
