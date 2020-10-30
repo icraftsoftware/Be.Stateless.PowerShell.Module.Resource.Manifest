@@ -123,6 +123,7 @@ function New-Manifest {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $item = New-Object -TypeName PSCustomObject
+    Add-Member -InputObject $item -MemberType NoteProperty -Name Type -Value $Type
     Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $Name
     Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
     Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
@@ -140,7 +141,7 @@ function New-Manifest {
     }
 
     $manifest = @{ }
-    $manifest.Add($Type, $item)
+    $manifest.Add('Properties', $item)
     & $manifestBuildScript -Manifest $manifest
     $manifest
 }

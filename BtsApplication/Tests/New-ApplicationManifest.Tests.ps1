@@ -23,30 +23,32 @@ Describe 'New-ApplicationManifest' {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Application' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
                 $actualManifest = New-ApplicationManifest -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2' -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
-                $actualManifest.ContainsKey('Application') | Should -BeTrue
-                $actualManifest.Application | Should -Not -BeNullOrEmpty
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Application | Should -BeNullOrEmpty
+                $actualManifest.ContainsKey('Properties') | Should -BeTrue
+                $actualManifest.Properties | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.Type | Should -Be Application
+                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
             It 'Returns a manifest instance with all the properties.' {
                 $actualManifest = New-ApplicationManifest -Name 'BizTalk.Factory' -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
-                $actualManifest.ContainsKey('Application') | Should -BeTrue
-                $actualManifest.Application | Should -Not -BeNullOrEmpty
-                $actualManifest.Application.Name | Should -Be 'BizTalk.Factory'
-                $actualManifest.Application.Description | Should -BeNullOrEmpty
-                $actualManifest.Application.References | Should -BeNullOrEmpty
+                $actualManifest.ContainsKey('Properties') | Should -BeTrue
+                $actualManifest.Properties | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.Type | Should -Be Application
+                $actualManifest.Properties.Name | Should -Be 'BizTalk.Factory'
+                $actualManifest.Properties.Description | Should -BeNullOrEmpty
+                $actualManifest.Properties.References | Should -BeNullOrEmpty
             }
         }
 
         Context 'When values are splatted' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Application' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
                 $arguments = @{
                     Name        = 'BizTalk.Factory'
@@ -56,9 +58,10 @@ Describe 'New-ApplicationManifest' {
                 $actualManifest = New-ApplicationManifest @arguments -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
-                $actualManifest.ContainsKey('Application') | Should -BeTrue
-                $actualManifest.Application | Should -Not -BeNullOrEmpty
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Application | Should -BeNullOrEmpty
+                $actualManifest.ContainsKey('Properties') | Should -BeTrue
+                $actualManifest.Properties | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.Type | Should -Be Application
+                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
         }
 

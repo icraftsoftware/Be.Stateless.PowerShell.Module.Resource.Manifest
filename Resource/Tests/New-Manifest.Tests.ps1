@@ -23,20 +23,21 @@ Describe 'New-Manifest' {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Application'; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
                 $actualManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2' -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
-                $actualManifest.ContainsKey('Application') | Should -BeTrue
-                $actualManifest.Application | Should -Not -BeNullOrEmpty
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Application | Should -BeNullOrEmpty
+                $actualManifest.ContainsKey('Properties') | Should -BeTrue
+                $actualManifest.Properties | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.Type | Should -Be Application
+                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
         }
 
         Context 'When values are splatted' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Application'; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
                 $arguments = @{
                     Type        = 'Application'
@@ -47,9 +48,10 @@ Describe 'New-Manifest' {
                 $actualManifest = New-Manifest @arguments -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
-                $actualManifest.ContainsKey('Application') | Should -BeTrue
-                $actualManifest.Application | Should -Not -BeNullOrEmpty
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Application | Should -BeNullOrEmpty
+                $actualManifest.ContainsKey('Properties') | Should -BeTrue
+                $actualManifest.Properties | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.Type | Should -Be Application
+                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
         }
 
@@ -58,7 +60,8 @@ Describe 'New-Manifest' {
                 { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
                 New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
                     { $Manifest } | Should -Not -Throw
-                    $Manifest.Application.Name | Should -Be BizTalk.Factory
+                    $Manifest.Properties.Type | Should -Be Application
+                    $Manifest.Properties.Name | Should -Be BizTalk.Factory
                 }
                 { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
             }

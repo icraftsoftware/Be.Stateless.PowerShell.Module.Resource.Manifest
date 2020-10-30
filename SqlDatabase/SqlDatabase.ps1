@@ -24,9 +24,9 @@ Set-StrictMode -Version Latest
 .DESCRIPTION
     Creates the necessary manifest resources to deploy and undeploy a SQL Server database. The resources created are as
     follows:
-    - a SqlDeploymentScript for the script conventionally named ($Manifest.Application.Name).Create.$(Name).sql
-    - a SqlDeploymentScript for the script conventionally named ($Manifest.Application.Name).Create.$(Name).Objects.sql
-    - a SqlUndeploymentScript for the script conventionally named ($Manifest.Application.Name).Drop.$(Name).sql
+    - a SqlDeploymentScript for the script conventionally named ($Manifest.Properties.Name).Create.$(Name).sql
+    - a SqlDeploymentScript for the script conventionally named ($Manifest.Properties.Name).Create.$(Name).Objects.sql
+    - a SqlUndeploymentScript for the script conventionally named ($Manifest.Properties.Name).Drop.$(Name).sql
 .PARAMETER Name
     The name of the SQL Server database for which to create the necessary deployment and undeployment resources.
 .PARAMETER Server
@@ -77,6 +77,10 @@ function New-SqlDatabase {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
 
+    if ($Manifest.Properties.Type -ne 'Application') {
+        throw 'A BizTalk Application''s custom SQL database can only be installed in the context of an Application manifest.'
+    }
+
     $arguments = @{
         Server    = $Server
         Condition = $Condition
@@ -84,9 +88,9 @@ function New-SqlDatabase {
     if ($Variables.Keys | Test-Any) { $arguments.Variables = $Variables }
 
     $Name | ForEach-Object -Process {
-        New-SqlDeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$_.sql") -PassThru:$PassThru
-        New-SqlDeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Application.Name).Create.$_.Objects.sql") -PassThru:$PassThru
-        New-SqlUndeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Application.Name).Drop.$_.sql") -PassThru:$PassThru
+        New-SqlDeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Properties.Name).Create.$_.sql") -PassThru:$PassThru
+        New-SqlDeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Properties.Name).Create.$_.Objects.sql") -PassThru:$PassThru
+        New-SqlUndeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Properties.Name).Drop.$_.sql") -PassThru:$PassThru
 
         if ($EnlistInBizTalkBackupJob) {
             New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server $Server -Condition $Condition -PassThru:$PassThru `
