@@ -24,6 +24,7 @@ Set-StrictMode -Version Latest
 . $PSScriptRoot\BtsBamIndex\BtsBamIndex.ps1
 . $PSScriptRoot\BtsBinding\BtsBinding.ps1
 . $PSScriptRoot\BtsComponent\BtsComponent.ps1
+. $PSScriptRoot\BtsLibrary\BtsLibrary.ps1
 . $PSScriptRoot\BtsOrchestration\BtsOrchestration.ps1
 . $PSScriptRoot\BtsPipeline\BtsPipeline.ps1
 . $PSScriptRoot\BtsPipelineComponent\BtsPipelineComponent.ps1

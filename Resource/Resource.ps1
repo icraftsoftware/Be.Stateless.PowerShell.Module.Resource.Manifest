@@ -146,6 +146,62 @@ function New-Manifest {
     $manifest
 }
 
+function Get-PackageItem {
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [string]
+        $PackagePath,
+
+        [Parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]]
+        $Name,
+
+        [Parameter(Position = 2, Mandatory = $false)]
+        [string[]]
+        $Include = @('*.dll', "*.exe")
+    )
+    process {
+        $Name | ForEach-Object -Process {
+            $item = Get-ChildItem -Path $PackagePath `
+                -File `
+                -Filter "$_.*" `
+                -Include $Include -Recurse
+            if ($null -eq $item) {
+                throw "Package item not found [Path: '$PackagePath', Name: '$_', Include = '$Include']"
+            }
+            $item
+        }
+    }
+}
+
+function Resolve-PackagePath {
+    [OutputType([PSCustomObject])]
+    param (
+        [Parameter(Mandatory = $false)]
+        [psobject]
+        $Path = '.',
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $ProjectName = 'Deployment',
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Debug', 'Release')]
+        [string]
+        $Configuration,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('net48', 'net45')]
+        [string]
+        $DotnetFrameworkVersion = 'net48'
+    )
+    process {
+        [System.IO.Path]::Combine($Path, $ProjectName, 'bin', $Configuration, $DotnetFrameworkVersion) | Resolve-Path -ErrorAction Stop
+    }
+}
+
 #region helpers
 
 function Add-ItemProperties {

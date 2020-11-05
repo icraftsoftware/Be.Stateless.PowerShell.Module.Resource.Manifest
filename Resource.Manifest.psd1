@@ -60,6 +60,8 @@
         'New-Binding',
         # BtsComponent.ps1
         'New-Component',
+        # BtsLibrary.ps1
+        'New-LibraryManifest',
         # BtsOrchestration.ps1
         'New-Orchestration',
         # BtsPipeline.ps1
@@ -78,7 +80,9 @@
         'New-SqlUndeploymentScript',
         # Resource.ps1
         'New-Item',
-        'New-Manifest'
+        'New-Manifest',
+        'Get-PackageItem',
+        'Resolve-PackagePath'
     )
     VariablesToExport     = @()
     PrivateData           = @{
