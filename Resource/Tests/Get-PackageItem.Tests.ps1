@@ -23,7 +23,7 @@ Describe 'Get-PackageItem' {
 
         Context 'When package items does not exist' {
             It 'Throws when any item is found.' {
-                { Get-PackageItem -PackagePath . -Name 'Test' } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage "Package item not found ``[Path: '.', Name: 'Test', Include = '``*.dll ``*.exe'``]"
+                { Get-PackageItem -Name 'Test' } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage "Package item not found ``[Path: '*', Name: 'Test', Include = '``*.dll ``*.exe'``]"
             }
         }
 

@@ -150,13 +150,13 @@ function Get-PackageItem {
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param (
-        [Parameter(Position = 0, Mandatory = $true)]
-        [string]
-        $PackagePath,
-
-        [Parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $true)]
+        [Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true)]
         [string[]]
         $Name,
+
+        [Parameter(Position = 1, Mandatory = $false)]
+        [string]
+        $PackagePath = $MyInvocation.PSScriptRoot,
 
         [Parameter(Position = 2, Mandatory = $false)]
         [string[]]
