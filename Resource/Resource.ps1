@@ -146,6 +146,36 @@ function New-Manifest {
     $manifest
 }
 
+function Get-ResourceItem {
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]]
+        $Name,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $RootPath = $MyInvocation.PSScriptRoot,
+
+        [Parameter(Mandatory = $false)]
+        [string[]]
+        $Include = @('*.dll', "*.exe")
+    )
+    process {
+        $Name | ForEach-Object -Process {
+            $item = Get-ChildItem -Path $RootPath `
+                -File `
+                -Filter "$_.*" `
+                -Include $Include -Recurse
+            if ($null -eq $item) {
+                throw "Package item not found [Path: '$RootPath', Name: '$_', Include = '$Include']"
+            }
+            $item
+        }
+    }
+}
+
 #region helpers
 
 function Add-ItemProperties {
