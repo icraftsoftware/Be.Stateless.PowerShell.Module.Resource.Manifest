@@ -23,7 +23,7 @@ Describe 'New-LibraryManifest' {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Type = 'Library' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @() }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Library' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' }
 
                 $actualManifest = New-LibraryManifest -Name 'BizTalk.Factory' -Description 'No comment.' -Build { }
 
@@ -42,13 +42,12 @@ Describe 'New-LibraryManifest' {
                 $actualManifest.Properties.Type | Should -Be Library
                 $actualManifest.Properties.Name | Should -Be 'BizTalk.Factory'
                 $actualManifest.Properties.Description | Should -BeNullOrEmpty
-                $actualManifest.Properties.References | Should -BeNullOrEmpty
             }
         }
 
         Context 'When values are splatted' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Type = 'Library' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @() }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Library' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' }
 
                 $arguments = @{
                     Name        = 'BizTalk.Factory'

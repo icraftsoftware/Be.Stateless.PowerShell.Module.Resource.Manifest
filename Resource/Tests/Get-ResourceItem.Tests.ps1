@@ -36,15 +36,15 @@ Describe 'Get-ResourceItem' {
                 '' > TestDrive:\Test.2.xml
             }
             It 'Returns a collection of file.' {
-                $expetedResourceItems = Get-ResourceItem -PackagePath "TestDrive:\" -Name 'Test'
-                $actualResourceItems = Get-ResourceItem -PackagePath "TestDrive:\" -Name 'Test'
+                $expetedResourceItems = Get-ResourceItem -RootPath "TestDrive:\" -Name 'Test'
+                $actualResourceItems = Get-ResourceItem -RootPath "TestDrive:\" -Name 'Test'
 
                 $actualResourceItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-Object $actualResourceItems[$_] $expetedResourceItems[$_] | Should -BeNullOrEmpty }
             }
             It 'Returns a single file.' {
                 $expetedResourceItem = Get-Item 'TestDrive:\subfolder\Test.1.dll'
-                $actualResourceItems = Get-ResourceItem -PackagePath "TestDrive:\" -Name 'Test.1'
+                $actualResourceItems = Get-ResourceItem -RootPath "TestDrive:\" -Name 'Test.1'
 
                 $actualResourceItems | Should -HaveCount 1
                 Compare-Object $actualResourceItems[0] $expetedResourceItem | Should -BeNullOrEmpty

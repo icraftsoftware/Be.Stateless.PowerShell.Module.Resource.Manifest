@@ -150,26 +150,26 @@ function Get-ResourceItem {
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param (
-        [Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string[]]
         $Name,
 
-        [Parameter(Position = 1, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $PackagePath = $MyInvocation.PSScriptRoot,
+        $RootPath = $MyInvocation.PSScriptRoot,
 
-        [Parameter(Position = 2, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string[]]
         $Include = @('*.dll', "*.exe")
     )
     process {
         $Name | ForEach-Object -Process {
-            $item = Get-ChildItem -Path $PackagePath `
+            $item = Get-ChildItem -Path $RootPath `
                 -File `
                 -Filter "$_.*" `
                 -Include $Include -Recurse
             if ($null -eq $item) {
-                throw "Package item not found [Path: '$PackagePath', Name: '$_', Include = '$Include']"
+                throw "Package item not found [Path: '$RootPath', Name: '$_', Include = '$Include']"
             }
             $item
         }

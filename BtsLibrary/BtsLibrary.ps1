@@ -42,7 +42,6 @@ function New-LibraryManifest {
         Type        = 'Library'
         Name        = $Name
         Description = $Description
-        References  = @()
     }
     New-Manifest @arguments -Build $Build
 }

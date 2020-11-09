@@ -81,8 +81,7 @@
         # Resource.ps1
         'New-Item',
         'New-Manifest',
-        'Get-PackageItem',
-        'Resolve-PackagePath'
+        'Get-ResourceItem'
     )
     VariablesToExport     = @()
     PrivateData           = @{
