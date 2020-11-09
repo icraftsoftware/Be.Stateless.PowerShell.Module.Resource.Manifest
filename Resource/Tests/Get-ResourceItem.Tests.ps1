@@ -18,16 +18,16 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
-Describe 'Get-PackageItem' {
+Describe 'Get-ResourceItem' {
     InModuleScope Resource.Manifest {
 
-        Context 'When package items does not exist' {
+        Context 'When resource items does not exist' {
             It 'Throws when any item is found.' {
-                { Get-PackageItem -Name 'Test' } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage "Package item not found ``[Path: '*', Name: 'Test', Include = '``*.dll ``*.exe'``]"
+                { Get-ResourceItem -Name 'Test' } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage "Package item not found ``[Path: '*', Name: 'Test', Include = '``*.dll ``*.exe'``]"
             }
         }
 
-        Context 'When package items exists' {
+        Context 'When resource items exists' {
             BeforeAll {
                 # create some empty files
                 mkdir TestDrive:\subfolder
@@ -36,18 +36,18 @@ Describe 'Get-PackageItem' {
                 '' > TestDrive:\Test.2.xml
             }
             It 'Returns a collection of file.' {
-                $expetedPackageItems = Get-PackageItem -PackagePath "TestDrive:\" -Name 'Test'
-                $actualPackageItems = Get-PackageItem -PackagePath "TestDrive:\" -Name 'Test'
+                $expetedResourceItems = Get-ResourceItem -PackagePath "TestDrive:\" -Name 'Test'
+                $actualResourceItems = Get-ResourceItem -PackagePath "TestDrive:\" -Name 'Test'
 
-                $actualPackageItems | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Object $actualPackageItems[$_] $expetedPackageItems[$_] | Should -BeNullOrEmpty }
+                $actualResourceItems | Should -HaveCount 2
+                0..1 | ForEach-Object -Process { Compare-Object $actualResourceItems[$_] $expetedResourceItems[$_] | Should -BeNullOrEmpty }
             }
             It 'Returns a single file.' {
-                $expetedPackageItem = Get-Item 'TestDrive:\subfolder\Test.1.dll'
-                $actualPackageItems = Get-PackageItem -PackagePath "TestDrive:\" -Name 'Test.1'
+                $expetedResourceItem = Get-Item 'TestDrive:\subfolder\Test.1.dll'
+                $actualResourceItems = Get-ResourceItem -PackagePath "TestDrive:\" -Name 'Test.1'
 
-                $actualPackageItems | Should -HaveCount 1
-                Compare-Object $actualPackageItems[0] $expetedPackageItem | Should -BeNullOrEmpty
+                $actualResourceItems | Should -HaveCount 1
+                Compare-Object $actualResourceItems[0] $expetedResourceItem | Should -BeNullOrEmpty
             }
         }
     }
