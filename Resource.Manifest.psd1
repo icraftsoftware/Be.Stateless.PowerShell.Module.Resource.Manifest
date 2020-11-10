@@ -37,6 +37,7 @@
         'BamIndex',
         'Binding',
         'Component',
+        'LibraryManifest',
         'Orchestration',
         'Pipeline',
         'PipelineComponent',
