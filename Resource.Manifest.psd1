@@ -37,6 +37,7 @@
         'BamIndex',
         'Binding',
         'Component',
+        'ConfigurationSpecification',
         'LibraryManifest',
         'Map',
         'Orchestration',
@@ -73,6 +74,10 @@
         'New-PipelineComponent',
         # BtsSchema.ps1
         'New-Schema',
+        # BtsTransform.ps1
+        'New-Transform',
+        # ConfigurationSpecification.ps1
+        'New-ConfigurationSpecification',
         # SqlDatabase.ps1
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1
