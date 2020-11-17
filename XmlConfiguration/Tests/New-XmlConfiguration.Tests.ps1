@@ -18,7 +18,7 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
-Describe 'New-ConfigurationSpecification' {
+Describe 'New-XmlConfiguration' {
     InModuleScope Resource.Manifest {
 
         Context 'When Configuration Specification file does not exist' {
@@ -26,11 +26,11 @@ Describe 'New-ConfigurationSpecification' {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-ConfigurationSpecification -Path 'c:\web.config' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-XmlConfiguration -Path 'c:\web.config' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 
-        Context 'When Configuration Specification file exists' {
+        Context 'When XML Configuration file exists' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
@@ -39,7 +39,7 @@ Describe 'New-ConfigurationSpecification' {
             It 'Returns a custom object with both a path and a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
 
-                $actualItem = New-ConfigurationSpecification -Path TestDrive:\one.txt -PassThru
+                $actualItem = New-XmlConfiguration -Path TestDrive:\one.txt -PassThru
 
                 Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
@@ -49,21 +49,21 @@ Describe 'New-ConfigurationSpecification' {
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $actualItems = New-ConfigurationSpecification -Path (Get-ChildItem -Path TestDrive:\) -PassThru
+                $actualItems = New-XmlConfiguration -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
-        Context 'Creating Configuration Specifications must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating XML Configurations must be done via the ScriptBlock passed to New-Manifest' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
                 '' > TestDrive:\two.txt
                 '' > TestDrive:\six.txt
             }
-            It 'Accumulates Configuration Specifications into the Manifest being built.' {
+            It 'Accumulates XML Configurations into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
@@ -71,13 +71,13 @@ Describe 'New-ConfigurationSpecification' {
                 )
 
                 $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    New-ConfigurationSpecification -Path (Get-ChildItem -Path TestDrive:\)
+                    New-XmlConfiguration -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
-                $builtManifest.ContainsKey('ConfigurationSpecifications') | Should -BeTrue
-                $builtManifest.ConfigurationSpecifications | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.ConfigurationSpecifications[$_] | Should -BeNullOrEmpty }
+                $builtManifest.ContainsKey('XmlConfigurations') | Should -BeTrue
+                $builtManifest.XmlConfigurations | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlConfigurations[$_] | Should -BeNullOrEmpty }
             }
         }
 

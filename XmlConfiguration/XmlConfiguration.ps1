@@ -18,7 +18,7 @@
 
 Set-StrictMode -Version Latest
 
-function New-ConfigurationSpecification {
+function New-XmlConfiguration {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
@@ -39,11 +39,11 @@ function New-ConfigurationSpecification {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'ConfigurationSpecifications'
+        Resource  = 'XmlConfigurations'
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
     New-Item @arguments -PassThru:$PassThru
 }
 
-Set-Alias -Name ConfigurationSpecification -Value New-ConfigurationSpecification
+Set-Alias -Name XmlConfiguration -Value New-XmlConfiguration

@@ -37,7 +37,6 @@
         'BamIndex',
         'Binding',
         'Component',
-        'ConfigurationSpecification',
         'LibraryManifest',
         'Map',
         'Orchestration',
@@ -46,7 +45,9 @@
         'Schema',
         'SqlDatabase',
         'SqlDeploymentScript',
-        'SqlUndeploymentScript'
+        'SqlUndeploymentScript',
+        'Transform',
+        'XmlConfiguration'
     )
     CmdletsToExport       = @()
     FunctionsToExport     = @(
@@ -76,8 +77,6 @@
         'New-Schema',
         # BtsTransform.ps1
         'New-Transform',
-        # ConfigurationSpecification.ps1
-        'New-ConfigurationSpecification',
         # SqlDatabase.ps1
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1
@@ -85,9 +84,17 @@
         # SqlUndeploymentScript.ps1
         'New-SqlUndeploymentScript',
         # Resource.ps1
+<<<<<<<
         'Get-ResourceItem',
         'New-ResourceItem',
         'New-ResourceManifest'
+=======
+        'New-Item',
+        'New-Manifest',
+        'Get-ResourceItem',
+        # XmlConfiguration.ps1
+        'New-XmlConfiguration'
+>>>>>>>
     )
     VariablesToExport     = @()
     PrivateData           = @{
