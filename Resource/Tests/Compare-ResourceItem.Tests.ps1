@@ -18,12 +18,12 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
-Describe 'Compare-Item' {
+Describe 'Compare-ResourceItem' {
    InModuleScope Resource.Manifest {
 
       Context 'When both Items are null' {
          It 'Returns nothing.' {
-            { Compare-Item -ReferenceItem $null -DifferenceItem $null } | Should -Throw
+            { Compare-ResourceItem -ReferenceItem $null -DifferenceItem $null } | Should -Throw
          }
       }
 
@@ -32,10 +32,10 @@ Describe 'Compare-Item' {
             $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
          }
          It 'Throws when ReferenceItem is a HashTable.' {
-            { Compare-Item -ReferenceItem (@{Name = 'Stark' }) -DifferenceItem [PSCustomObject](@{ Name = 'Stark' }) } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+            { Compare-ResourceItem -ReferenceItem (@{Name = 'Stark' }) -DifferenceItem [PSCustomObject](@{ Name = 'Stark' }) } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
          }
          It 'Throws when DifferenceItem is a HashTable.' {
-            { Compare-Item -ReferenceItem [PSCustomObject](@{Name = 'Stark' }) -DifferenceItem (@{ Name = 'Stark' }) } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+            { Compare-ResourceItem -ReferenceItem [PSCustomObject](@{Name = 'Stark' }) -DifferenceItem (@{ Name = 'Stark' }) } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
          }
       }
 
@@ -43,7 +43,7 @@ Describe 'Compare-Item' {
          It 'Returns nothing.' {
             $left = [PSCustomObject]@{ a = 'x' }
             $right = [PSCustomObject]@{ a = 'x' }
-            Compare-Item -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
+            Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
          }
       }
 
@@ -51,7 +51,7 @@ Describe 'Compare-Item' {
          It 'Returns nothing.' {
             $left = [PSCustomObject]@{ firstname = 'pepper' ; lastname = 'potts' ; displayname = 'pepper potts' }
             $right = [PSCustomObject]@{ firstname = 'pepper' ; lastname = 'potts' ; displayname = 'pepper potts' }
-            Compare-Item -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
+            Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
          }
       }
 
@@ -60,7 +60,7 @@ Describe 'Compare-Item' {
             $left = [PSCustomObject]@{ a = $null }
             $right = [PSCustomObject]@{ }
 
-            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+            [object[]]$result = Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right
 
             $result.Length | Should -Be 1
             $result.Property | Should -Be 'a'
@@ -75,7 +75,7 @@ Describe 'Compare-Item' {
             $left = [PSCustomObject]@{ }
             $right = [PSCustomObject]@{ a = $null }
 
-            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+            [object[]]$result = Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right
 
             $result.Length | Should -Be 1
             $result.Property | Should -Be 'a'
@@ -90,7 +90,7 @@ Describe 'Compare-Item' {
             $left = [PSCustomObject]@{ a = 'value' }
             $right = [PSCustomObject]@{ a = $null }
 
-            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+            [object[]]$result = Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right
 
             $result.Length | Should -Be 1
             $result.Property | Should -Be 'a'
@@ -102,7 +102,7 @@ Describe 'Compare-Item' {
             $left = [PSCustomObject]@{ firstname = 'pepper' ; lastname = 'potts' ; role = 'partner' }
             $right = [PSCustomObject]@{ firstname = 'pepper' ; lastname = 'potts' ; role = 'assistant' }
 
-            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+            [object[]]$result = Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right
 
             $result.Length | Should -Be 1
             $result.Property | Should -Be 'role'
@@ -117,13 +117,13 @@ Describe 'Compare-Item' {
             $left = [PSCustomObject]@{ firstname = 'pepper' ; array = 1, 2 }
             $right = [PSCustomObject]@{ firstname = 'pepper' ; array = 1, 2 }
 
-            Compare-Item -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
+            Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
          }
          It 'Returns ''array (1, 2)) <> (3, 4, 5)''.' {
             $left = [PSCustomObject]@{ firstname = 'pepper' ; array = 1, 2 }
             $right = [PSCustomObject]@{ firstname = 'pepper' ; array = 3, 4, 5 }
 
-            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+            [object[]]$result = Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right
 
             $result.Length | Should -Be 1
             $result.Property | Should -Be 'array'
@@ -138,13 +138,13 @@ Describe 'Compare-Item' {
             $left = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ prop = 'value' } }
             $right = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ prop = 'value' } }
 
-            Compare-Item -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
+            Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right | Should -BeNullOrEmpty
          }
          It 'Returns ''hashtable.one 1 <'', ''hashtable.six 6 <> 9'', ''hashtable.two > 2''.' {
             $left = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ one = '1' ; six = '6' } }
             $right = [PSCustomObject]@{ firstname = 'pepper' ; hashtable = @{ two = '2' ; six = '9' } }
 
-            [object[]]$result = Compare-Item -ReferenceItem $left -DifferenceItem $right
+            [object[]]$result = Compare-ResourceItem -ReferenceItem $left -DifferenceItem $right
 
             $result.Length | Should -Be 3
 

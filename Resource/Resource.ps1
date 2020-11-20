@@ -18,7 +18,42 @@
 
 Set-StrictMode -Version Latest
 
-function New-Item {
+function Get-ResourceItem {
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]]
+        $Name,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $RootPath = $MyInvocation.PSScriptRoot,
+
+        [Parameter(Mandatory = $false)]
+        [string[]]
+        $Include = @('*.dll', "*.exe")
+    )
+    process {
+        $Name | ForEach-Object -Process {
+            $items = Get-ChildItem -Path $RootPath `
+                -Filter "$_.*" `
+                -Include $Include `
+                -File `
+                -Recurse
+            if ($null -eq $items ) {
+                throw "Resource item not found [Path: '$RootPath', Name: '$_', Include = '$($Include -join ", ")']."
+            }
+            $duplicateItems = $items | Group-Object Name | Where-Object Count -GT 1
+            if ($duplicateItems | Test-Any) {
+                throw "Ambiguous resource items found ['$($duplicateItems.Name -join "', '")'] matching criteria [Path: '$RootPath', Name: '$_', Include = '$($Include -join ", ")']."
+            }
+            $items
+        }
+    }
+}
+
+function New-ResourceItem {
     [CmdletBinding(DefaultParameterSetName = 'file-resource')]
     [OutputType([PSCustomObject[]])]
     param (
@@ -59,8 +94,8 @@ function New-Item {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
 
-    $DynamicProperties = ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments
-    if (-not($Condition -is [bool]) -or -not($Condition)) { $DynamicProperties.Add('Condition', $Condition) }
+    $splattedArguments = ConvertTo-SplattedArguments -UnboundArguments $UnboundArguments
+    if (-not($Condition -is [bool]) -or -not($Condition)) { $splattedArguments.Add('Condition', $Condition) }
 
     $(if ($PSCmdlet.ParameterSetName -eq 'named-resource') { $Name } else { $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath }) | ForEach-Object -Process {
         $item = New-Object -TypeName PSCustomObject
@@ -70,7 +105,7 @@ function New-Item {
             Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value (Split-Path -Path $_ -Leaf)
             Add-Member -InputObject $item -MemberType NoteProperty -Name Path -Value $_
         }
-        Add-ItemProperties -Item $item -DynamicProperties $DynamicProperties
+        Add-ResourceItemMembers -Item $item -DynamicMembers $splattedArguments
         if ($PassThru) {
             $item
         } else {
@@ -87,7 +122,7 @@ function New-Item {
     }
 }
 
-function New-Manifest {
+function New-ResourceManifest {
     [CmdletBinding()]
     [OutputType([hashtable])]
     param (
@@ -126,7 +161,7 @@ function New-Manifest {
     Add-Member -InputObject $item -MemberType NoteProperty -Name Type -Value $Type
     Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $Name
     Add-Member -InputObject $item -MemberType NoteProperty -Name Description -Value $Description
-    Add-ItemProperties -Item $item -DynamicProperties (ConvertTo-DynamicProperties -UnboundArguments $UnboundArguments)
+    Add-ResourceItemMembers -Item $item -DynamicMembers (ConvertTo-SplattedArguments -UnboundArguments $UnboundArguments)
 
     $manifestBuildScript = [scriptblock] {
         [CmdletBinding()]
@@ -146,39 +181,9 @@ function New-Manifest {
     $manifest
 }
 
-function Get-ResourceItem {
-    [CmdletBinding()]
-    [OutputType([System.IO.FileInfo[]])]
-    param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]]
-        $Name,
-
-        [Parameter(Mandatory = $false)]
-        [string]
-        $RootPath = $MyInvocation.PSScriptRoot,
-
-        [Parameter(Mandatory = $false)]
-        [string[]]
-        $Include = @('*.dll', "*.exe")
-    )
-    process {
-        $Name | ForEach-Object -Process {
-            $item = Get-ChildItem -Path $RootPath `
-                -File `
-                -Filter "$_.*" `
-                -Include $Include -Recurse
-            if ($null -eq $item) {
-                throw "Package item not found [Path: '$RootPath', Name: '$_', Include = '$Include']"
-            }
-            $item
-        }
-    }
-}
-
 #region helpers
 
-function Add-ItemProperties {
+function Add-ResourceItemMembers {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
@@ -190,25 +195,26 @@ function Add-ItemProperties {
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [AllowEmptyCollection()]
         [hashtable]
-        $DynamicProperties,
+        $DynamicMembers,
 
         [Parameter(Mandatory = $false)]
         [switch]
         $PassThru
     )
     process {
-        $DynamicProperties.Keys | ForEach-Object -Process {
-            if ($DynamicProperties.$_ -is [ScriptBlock]) {
-                Add-Member -InputObject $item -MemberType ScriptProperty -Name $_ -Value $DynamicProperties.$_
+        $DynamicMembers.Keys | ForEach-Object -Process {
+            if ($DynamicMembers.$_ -is [ScriptBlock]) {
+                # ScriptMethod instead of ScriptProperty to avoid any error to be silenced; see https://stackoverflow.com/a/19777735/1789441
+                Add-Member -InputObject $item -MemberType ScriptMethod -Name $_ -Value $DynamicMembers.$_
             } else {
-                Add-Member -InputObject $item -MemberType NoteProperty -Name $_ -Value $DynamicProperties.$_
+                Add-Member -InputObject $item -MemberType NoteProperty -Name $_ -Value $DynamicMembers.$_
             }
         }
         if ($PassThru) { $Item }
     }
 }
 
-function Compare-Item {
+function Compare-ResourceItem {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
@@ -253,7 +259,7 @@ function Compare-Item {
     }
 }
 
-function ConvertTo-DynamicProperties {
+function ConvertTo-SplattedArguments {
     [CmdletBinding()]
     [OutputType([hashtable])]
     param (
@@ -262,26 +268,26 @@ function ConvertTo-DynamicProperties {
         [psobject[]]
         $UnboundArguments
     )
-    $DynamicProperties = @{ }
+    $splattedArguments = @{ }
     $UnboundArguments | ForEach-Object -Process {
         if ($_ -is [array]) {
-            $DynamicProperties.$lastParameterName = $_
+            $splattedArguments.$lastParameterName = $_
         } else {
             switch -regex ($_) {
                 # parse parameter name
                 '^-(\w+):?$' {
-                    $DynamicProperties.Add(($lastParameterName = $matches[1]), $null)
+                    $splattedArguments.Add(($lastParameterName = $matches[1]), $null)
                     break
                 }
                 # parse values of last parsed parameter
                 default {
-                    $DynamicProperties.$lastParameterName = $_
+                    $splattedArguments.$lastParameterName = $_
                     break
                 }
             }
         }
     }
-    $DynamicProperties
+    $splattedArguments
 }
 
 #endregion

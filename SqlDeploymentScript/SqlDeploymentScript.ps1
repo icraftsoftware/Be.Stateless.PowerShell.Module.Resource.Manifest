@@ -55,7 +55,7 @@ function New-SqlDeploymentScript {
         Variables = $Variables
         Condition = $Condition
     }
-    New-Item @arguments -PassThru:$PassThru
+    New-ResourceItem @arguments -PassThru:$PassThru
 }
 
 Set-Alias -Name SqlDeploymentScript -Value New-SqlDeploymentScript

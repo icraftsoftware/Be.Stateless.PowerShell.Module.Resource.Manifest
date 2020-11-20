@@ -43,7 +43,7 @@ function New-LibraryManifest {
         Name        = $Name
         Description = $Description
     }
-    New-Manifest @arguments -Build $Build
+    New-ResourceManifest @arguments -Build $Build
 }
 
 Set-Alias -Name LibraryManifest -Value New-LibraryManifest

@@ -41,7 +41,7 @@ Describe 'New-SqlUndeploymentScript' {
 
                 $actualItem = New-SqlUndeploymentScript -Path TestDrive:\one.sql -Server localhost -Variables @{ Login = 'account' } -PassThru
 
-                Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
@@ -52,11 +52,11 @@ Describe 'New-SqlUndeploymentScript' {
                 $actualItems = New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -Server localhost -PassThru
 
                 $actualItems | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
-        Context 'Creating SqlUndeploymentScripts must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating SqlUndeploymentScripts must be done via the ScriptBlock passed to New-ResourceManifest' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.sql
@@ -70,14 +70,14 @@ Describe 'New-SqlUndeploymentScript' {
                     [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Variables = @{} ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -Server localhost
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
                 $builtManifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
                 $builtManifest.SqlUndeploymentScripts | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
+                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
             }
         }
 

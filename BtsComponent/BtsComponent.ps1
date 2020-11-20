@@ -43,7 +43,7 @@ function New-Component {
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
-    New-Item @arguments -PassThru:$PassThru
+    New-ResourceItem @arguments -PassThru:$PassThru
 }
 
 Set-Alias -Name Component -Value New-Component

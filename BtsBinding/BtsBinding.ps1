@@ -55,7 +55,7 @@ function New-Binding {
         EnvironmentSettingOverridesRootPath = $EnvironmentSettingOverridesRootPath
         AssemblyProbingPaths                = $AssemblyProbingPaths
     }
-    New-Item @arguments -PassThru:$PassThru
+    New-ResourceItem @arguments -PassThru:$PassThru
 }
 
 Set-Alias -Name Binding -Value New-Binding

@@ -43,7 +43,7 @@ function New-Schema {
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
-    New-Item @arguments -PassThru:$PassThru
+    New-ResourceItem @arguments -PassThru:$PassThru
 }
 
 Set-Alias -Name Schema -Value New-Schema

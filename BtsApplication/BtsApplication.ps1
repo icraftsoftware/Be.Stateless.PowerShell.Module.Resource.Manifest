@@ -49,7 +49,7 @@ function New-ApplicationManifest {
         Description = $Description
         References  = $References
     }
-    New-Manifest @arguments -Build $Build
+    New-ResourceManifest @arguments -Build $Build
 }
 
 Set-Alias -Name ApplicationManifest -Value New-ApplicationManifest

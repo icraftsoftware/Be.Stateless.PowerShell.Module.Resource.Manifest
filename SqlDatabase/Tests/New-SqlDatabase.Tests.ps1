@@ -30,7 +30,7 @@ Describe 'New-SqlDatabase' {
             }
         }
 
-        Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-ResourceManifest' {
             It 'Throws a $Manifest variable exception.' {
                 { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -PassThru } |
                     Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'The variable ''$Manifest'' cannot be retrieved because it has not been set.' }
@@ -39,13 +39,13 @@ Describe 'New-SqlDatabase' {
         Context 'Creating SqlDatabase throws when not done in the context of an Application manifest' {
             It 'Throws a manifest type exception.' {
                 {
-                    New-Manifest -Type Package -Name 'BizTalk.Factory' -Build {
+                    New-ResourceManifest -Type Package -Name 'BizTalk.Factory' -Build {
                         New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\
                     }
                 } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'A BizTalk Application''s custom SQL database can only be installed in the context of an Application manifest.' }
         }
 
-        Context 'Creating SqlDatabase must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating SqlDatabase must be done via the ScriptBlock passed to New-ResourceManifest' {
             BeforeAll {
                 '' > TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql
                 '' > TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql
@@ -60,7 +60,7 @@ Describe 'New-SqlDatabase' {
                     [PSCustomObject]@{ Name = 'BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\
                 }
 
@@ -68,11 +68,11 @@ Describe 'New-SqlDatabase' {
 
                 $builtManifest.ContainsKey('SqlDeploymentScripts') | Should -BeTrue
                 $builtManifest.SqlDeploymentScripts | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedDeploymentItems[$_] -DifferenceItem $builtManifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedDeploymentItems[$_] -DifferenceItem $builtManifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
 
                 $builtManifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
                 $builtManifest.SqlUndeploymentScripts | Should -HaveCount 1
-                Compare-Item -ReferenceItem $expectedUndeploymentItems[0] -DifferenceItem $builtManifest.SqlUndeploymentScripts[0] | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedUndeploymentItems[0] -DifferenceItem $builtManifest.SqlUndeploymentScripts[0] | Should -BeNullOrEmpty
             }
             It 'Accumulates BizTalk Backup Job Enlistment Scripts into the Manifest being built.' {
                 $expectedDeploymentItems = @(
@@ -85,7 +85,7 @@ Describe 'New-SqlDatabase' {
                     [PSCustomObject]@{ Name = 'RemoveCustomDatabaseFromOtherBackupDatabases.sql' ; Server = 'localhost' ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' } ; Path = "$PSScriptRoot\..\RemoveCustomDatabaseFromOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\ -EnlistInBizTalkBackupJob
                 }
 
@@ -93,11 +93,11 @@ Describe 'New-SqlDatabase' {
 
                 $builtManifest.ContainsKey('SqlDeploymentScripts') | Should -BeTrue
                 $builtManifest.SqlDeploymentScripts | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedDeploymentItems[$_] -DifferenceItem $builtManifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
+                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedDeploymentItems[$_] -DifferenceItem $builtManifest.SqlDeploymentScripts[$_] | Should -BeNullOrEmpty }
 
                 $builtManifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
                 $builtManifest.SqlUndeploymentScripts | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedUndeploymentItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedUndeploymentItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
             }
         }
 

@@ -21,33 +21,41 @@ Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 Describe 'Get-ResourceItem' {
     InModuleScope Resource.Manifest {
 
-        Context 'When resource items does not exist' {
-            It 'Throws when any item is found.' {
-                { Get-ResourceItem -Name 'Test' } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage "Package item not found ``[Path: '*', Name: 'Test', Include = '``*.dll ``*.exe'``]"
+        Context 'When resource file does not exist' {
+            It 'Throws when no resource item is found.' {
+                { Get-ResourceItem -Name Test } | Should -Throw `
+                    -ExceptionType ([System.Management.Automation.RuntimeException]) `
+                    -ExpectedMessage "Resource item not found ``[Path: '*', Name: 'Test', Include = '*.dll, *.exe']."
             }
         }
 
-        Context 'When resource items exists' {
+        Context 'When resource file exists' {
             BeforeAll {
                 # create some empty files
                 mkdir TestDrive:\subfolder
+                '' > TestDrive:\subfolder\Ambiguous.dll
                 '' > TestDrive:\subfolder\Test.1.dll
+                '' > TestDrive:\Ambiguous.dll
                 '' > TestDrive:\Test.2.dll
                 '' > TestDrive:\Test.2.xml
             }
-            It 'Returns a collection of file.' {
-                $expetedResourceItems = Get-ResourceItem -RootPath "TestDrive:\" -Name 'Test'
-                $actualResourceItems = Get-ResourceItem -RootPath "TestDrive:\" -Name 'Test'
+            It 'Throws when multiple resource items with the same name are found.' {
+                { Get-ResourceItem -RootPath TestDrive:\ -Name Ambiguous } | Should -Throw `
+                    -ExceptionType ([System.Management.Automation.RuntimeException]) `
+                    -ExpectedMessage "Ambiguous resource items found ``['Ambiguous.dll'] matching criteria ``[Path: '*', Name: 'Ambiguous', Include = '*.dll, *.exe']."
+            }
+            It 'Returns a collection of resource items.' {
+                $expectedResourceItems = Get-ResourceItem -RootPath TestDrive:\ -Name Test
+                $actualResourceItems = Get-ResourceItem -RootPath TestDrive:\ -Name Test
 
                 $actualResourceItems | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Object $actualResourceItems[$_] $expetedResourceItems[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-Object $actualResourceItems[$_] $expectedResourceItems[$_] | Should -BeNullOrEmpty }
             }
-            It 'Returns a single file.' {
-                $expetedResourceItem = Get-Item 'TestDrive:\subfolder\Test.1.dll'
-                $actualResourceItems = Get-ResourceItem -RootPath "TestDrive:\" -Name 'Test.1'
+            It 'Returns a single resource item.' {
+                $expectedResourceItem = Get-Item TestDrive:\Test.2.dll
+                $actualResourceItem = Get-ResourceItem -RootPath TestDrive:\ -Name Test.2
 
-                $actualResourceItems | Should -HaveCount 1
-                Compare-Object $actualResourceItems[0] $expetedResourceItem | Should -BeNullOrEmpty
+                Compare-Object $actualResourceItem $expectedResourceItem | Should -BeNullOrEmpty
             }
         }
     }

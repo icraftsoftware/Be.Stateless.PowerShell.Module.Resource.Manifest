@@ -18,20 +18,20 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
-Describe 'New-Manifest' {
+Describe 'New-ResourceManifest' {
     InModuleScope Resource.Manifest {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {
                 $expectedManifest = [PSCustomObject]@{ Type = 'Application'; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
 
-                $actualManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2' -Build { }
+                $actualManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2' -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
                 $actualManifest.Properties | Should -Not -BeNullOrEmpty
                 $actualManifest.Properties.Type | Should -Be Application
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
         }
 
@@ -45,20 +45,20 @@ Describe 'New-Manifest' {
                     Description = 'No comment.'
                     References  = 'App.1', 'App.2'
                 }
-                $actualManifest = New-Manifest @arguments -Build { }
+                $actualManifest = New-ResourceManifest @arguments -Build { }
 
                 $actualManifest | Should -BeOfType [hashtable]
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
                 $actualManifest.Properties | Should -Not -BeNullOrEmpty
                 $actualManifest.Properties.Type | Should -Be Application
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
         }
 
         Context 'Resource items can be accumulated in a Manifest' {
             It 'Initializes a manifest prior to calling the manifest build ScriptBlock.' {
                 { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
-                New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     { $Manifest } | Should -Not -Throw
                     $Manifest.Properties.Type | Should -Be Application
                     $Manifest.Properties.Name | Should -Be BizTalk.Factory

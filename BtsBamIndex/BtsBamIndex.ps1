@@ -48,7 +48,7 @@ function New-BamIndex {
         Name      = $Name
         Condition = $Condition
     }
-    New-Item @arguments -Activity $Activity -PassThru:$PassThru
+    New-ResourceItem @arguments -Activity $Activity -PassThru:$PassThru
 }
 
 Set-Alias -Name BamIndex -Value New-BamIndex

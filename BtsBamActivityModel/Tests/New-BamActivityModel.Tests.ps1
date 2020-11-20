@@ -41,7 +41,7 @@ Describe 'New-BamActivityModel' {
 
                 $actualItem = New-BamActivityModel -Path TestDrive:\one.txt -PassThru
 
-                Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
@@ -52,11 +52,11 @@ Describe 'New-BamActivityModel' {
                 $actualItems = New-BamActivityModel -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
                 $actualItems | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
-        Context 'Creating BamActivityModels must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating BamActivityModels must be done via the ScriptBlock passed to New-ResourceManifest' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
@@ -70,14 +70,14 @@ Describe 'New-BamActivityModel' {
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-BamActivityModel -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
                 $builtManifest.ContainsKey('BamActivityModels') | Should -BeTrue
                 $builtManifest.BamActivityModels | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamActivityModels[$_] | Should -BeNullOrEmpty }
+                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamActivityModels[$_] | Should -BeNullOrEmpty }
             }
         }
 

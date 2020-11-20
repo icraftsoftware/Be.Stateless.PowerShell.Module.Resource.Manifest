@@ -36,7 +36,7 @@ Describe 'New-BamIndex' {
 
                 $actualItem = New-BamIndex -Name BeginTime -Activity Process -PassThru
 
-                Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
@@ -47,11 +47,11 @@ Describe 'New-BamIndex' {
                 $actualItems = New-BamIndex -Name BeginTime, InterchangeID -Activity Process -PassThru
 
                 $actualItems | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
-        Context 'Creating BamIndexes must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating BamIndexes must be done via the ScriptBlock passed to New-ResourceManifest' {
             It 'Accumulates BamIndexes into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'BeginTime' ; Activity = 'Process' }
@@ -59,14 +59,14 @@ Describe 'New-BamIndex' {
                     [PSCustomObject]@{ Name = 'ProcessName' ; Activity = 'Process' }
                 )
 
-                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-BamIndex -Name BeginTime, InterchangeID, ProcessName -Activity Process
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
                 $builtManifest.ContainsKey('BamIndexes') | Should -BeTrue
                 $builtManifest.BamIndexes | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamIndexes[$_] | Should -BeNullOrEmpty }
+                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamIndexes[$_] | Should -BeNullOrEmpty }
             }
         }
 

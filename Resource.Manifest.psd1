@@ -80,9 +80,9 @@
         # SqlUndeploymentScript.ps1
         'New-SqlUndeploymentScript',
         # Resource.ps1
-        'New-Item',
-        'New-Manifest',
-        'Get-ResourceItem'
+        'Get-ResourceItem',
+        'New-ResourceItem',
+        'New-ResourceManifest'
     )
     VariablesToExport     = @()
     PrivateData           = @{

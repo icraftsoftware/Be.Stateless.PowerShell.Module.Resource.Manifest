@@ -31,7 +31,7 @@ Describe 'New-ApplicationManifest' {
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
                 $actualManifest.Properties | Should -Not -BeNullOrEmpty
                 $actualManifest.Properties.Type | Should -Be Application
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
             It 'Returns a manifest instance with all the properties.' {
                 $actualManifest = New-ApplicationManifest -Name 'BizTalk.Factory' -Build { }
@@ -61,7 +61,7 @@ Describe 'New-ApplicationManifest' {
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
                 $actualManifest.Properties | Should -Not -BeNullOrEmpty
                 $actualManifest.Properties.Type | Should -Be Application
-                Compare-Item -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
         }
 
