@@ -18,19 +18,19 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 
-Describe 'New-Transform' {
+Describe 'New-Map' {
     InModuleScope Resource.Manifest {
 
-        Context 'When Transform file does not exist' {
+        Context 'When Map file does not exist' {
             BeforeAll {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-Transform -Path 'c:\Transform.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-Map -Path 'c:\Map.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 
-        Context 'When Transform file exists' {
+        Context 'When Map file exists' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
@@ -39,7 +39,7 @@ Describe 'New-Transform' {
             It 'Returns a custom object with both a path and a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
 
-                $actualItem = New-Transform -Path TestDrive:\one.txt -PassThru
+                $actualItem = New-Map -Path TestDrive:\one.txt -PassThru
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
@@ -49,21 +49,21 @@ Describe 'New-Transform' {
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $actualItems = New-Transform -Path (Get-ChildItem -Path TestDrive:\) -PassThru
+                $actualItems = New-Map -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
-        Context 'Creating Transforms must be done via the ScriptBlock passed to New-ResourceManifest' {
+        Context 'Creating Maps must be done via the ScriptBlock passed to New-ResourceManifest' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
                 '' > TestDrive:\two.txt
                 '' > TestDrive:\six.txt
             }
-            It 'Accumulates Transforms into the Manifest being built.' {
+            It 'Accumulates Maps into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
@@ -71,13 +71,13 @@ Describe 'New-Transform' {
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    New-Transform -Path (Get-ChildItem -Path TestDrive:\)
+                    New-Map -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
-                $builtManifest.ContainsKey('Transforms') | Should -BeTrue
-                $builtManifest.Transforms | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Transforms[$_] | Should -BeNullOrEmpty }
+                $builtManifest.ContainsKey('Maps') | Should -BeTrue
+                $builtManifest.Maps | Should -HaveCount 3
+                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Maps[$_] | Should -BeNullOrEmpty }
             }
         }
 

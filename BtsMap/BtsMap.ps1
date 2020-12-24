@@ -18,7 +18,7 @@
 
 Set-StrictMode -Version Latest
 
-function New-Transform {
+function New-Map {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
@@ -39,11 +39,11 @@ function New-Transform {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'Transforms'
+        Resource  = 'Maps'
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
     New-ResourceItem @arguments -PassThru:$PassThru
 }
 
-Set-Alias -Name Transform -Value New-Transform
+Set-Alias -Name Map -Value New-Map

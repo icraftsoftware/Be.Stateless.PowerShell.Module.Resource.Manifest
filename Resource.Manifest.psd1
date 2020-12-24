@@ -38,14 +38,14 @@
         'Binding',
         'Component',
         'LibraryManifest',
+        'Map',
         'Orchestration',
         'Pipeline',
         'PipelineComponent',
         'Schema',
         'SqlDatabase',
         'SqlDeploymentScript',
-        'SqlUndeploymentScript',
-        'Transform'
+        'SqlUndeploymentScript'
     )
     CmdletsToExport       = @()
     FunctionsToExport     = @(
@@ -63,6 +63,8 @@
         'New-Component',
         # BtsLibrary.ps1
         'New-LibraryManifest',
+        # BtsMap.ps1
+        'New-Map',
         # BtsOrchestration.ps1
         'New-Orchestration',
         # BtsPipeline.ps1
@@ -71,8 +73,6 @@
         'New-PipelineComponent',
         # BtsSchema.ps1
         'New-Schema',
-        # BtsTransform.ps1
-        'New-Transform',
         # SqlDatabase.ps1
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1
