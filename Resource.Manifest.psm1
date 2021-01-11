@@ -34,3 +34,4 @@ Set-StrictMode -Version Latest
 . $PSScriptRoot\SqlDatabase\SqlDatabase.ps1
 . $PSScriptRoot\SqlDeploymentScript\SqlDeploymentScript.ps1
 . $PSScriptRoot\SqlUndeploymentScript\SqlUndeploymentScript.ps1
+. $PSScriptRoot\XmlConfiguration\XmlConfiguration.ps1

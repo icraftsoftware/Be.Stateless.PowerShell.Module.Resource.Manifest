@@ -45,7 +45,9 @@
         'Schema',
         'SqlDatabase',
         'SqlDeploymentScript',
-        'SqlUndeploymentScript'
+        'SqlUndeploymentScript',
+        'Transform',
+        'XmlConfiguration'
     )
     CmdletsToExport       = @()
     FunctionsToExport     = @(
@@ -80,6 +82,7 @@
         # SqlUndeploymentScript.ps1
         'New-SqlUndeploymentScript',
         # Resource.ps1
+<<<<<<<
         'Get-ResourceItem',
         'New-ResourceItem',
         'New-ResourceManifest'
