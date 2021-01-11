@@ -83,6 +83,8 @@
         'Get-ResourceItem',
         'New-ResourceItem',
         'New-ResourceManifest'
+        # XmlConfiguration.ps1
+        'New-XmlConfiguration'
     )
     VariablesToExport     = @()
     PrivateData           = @{
