@@ -32,21 +32,21 @@ function Get-ResourceItem {
 
         [Parameter(Mandatory = $false)]
         [string[]]
-        $Include = @('*.dll', "*.exe")
+        $Extensions = @(".dll", ".exe")
     )
     process {
         $Name | ForEach-Object -Process {
             $items = Get-ChildItem -Path $RootPath `
                 -Filter "$_.*" `
-                -Include $Include `
+                -Include $( $Extensions | ForEach-Object { "*$_" }) `
                 -File `
                 -Recurse
             if ($null -eq $items ) {
-                throw "Resource item not found [Path: '$RootPath', Name: '$_', Include = '$($Include -join ", ")']."
+                throw "Resource item not found [Path: '$RootPath', Name: '$_', Extensions = '$($Extensions -join ", ")']."
             }
             $duplicateItems = $items | Group-Object Name | Where-Object Count -GT 1
             if ($duplicateItems | Test-Any) {
-                throw "Ambiguous resource items found ['$($duplicateItems.Name -join "', '")'] matching criteria [Path: '$RootPath', Name: '$_', Include = '$($Include -join ", ")']."
+                throw "Ambiguous resource items found ['$($duplicateItems.Name -join "', '")'] matching criteria [Path: '$RootPath', Name: '$_', Extensions = '$($Extensions -join ", ")']."
             }
             $items
         }

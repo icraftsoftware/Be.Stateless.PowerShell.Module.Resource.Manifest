@@ -25,7 +25,7 @@ Describe 'Get-ResourceItem' {
             It 'Throws when no resource item is found.' {
                 { Get-ResourceItem -Name Test } | Should -Throw `
                     -ExceptionType ([System.Management.Automation.RuntimeException]) `
-                    -ExpectedMessage "Resource item not found ``[Path: '*', Name: 'Test', Include = '*.dll, *.exe']."
+                    -ExpectedMessage "Resource item not found ``[Path: '*', Name: 'Test', Extensions = '.dll, .exe']."
             }
         }
 
@@ -42,7 +42,7 @@ Describe 'Get-ResourceItem' {
             It 'Throws when multiple resource items with the same name are found.' {
                 { Get-ResourceItem -RootPath TestDrive:\ -Name Ambiguous } | Should -Throw `
                     -ExceptionType ([System.Management.Automation.RuntimeException]) `
-                    -ExpectedMessage "Ambiguous resource items found ``['Ambiguous.dll'] matching criteria ``[Path: '*', Name: 'Ambiguous', Include = '*.dll, *.exe']."
+                    -ExpectedMessage "Ambiguous resource items found ``['Ambiguous.dll'] matching criteria ``[Path: '*', Name: 'Ambiguous', Extensions = '.dll, .exe']."
             }
             It 'Returns a collection of resource items.' {
                 $expectedResourceItems = Get-ResourceItem -RootPath TestDrive:\ -Name Test
