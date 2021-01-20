@@ -1,6 +1,6 @@
 #region Copyright & License
 
-# Copyright © 2012 - 2020 François Chabot
+# Copyright © 2012 - 2021 François Chabot
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ function New-Binding {
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $EnvironmentSettingOverridesRootPath = $null,
+        $ExcelSettingOverridesFolderPath = $null,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string[]]
-        $AssemblyProbingPaths = @(),
+        $AssemblyProbingFolderPaths = @(),
 
         [Parameter(Mandatory = $false)]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
@@ -49,11 +49,11 @@ function New-Binding {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource                            = 'Bindings'
-        Path                                = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        Condition                           = $Condition
-        EnvironmentSettingOverridesRootPath = $EnvironmentSettingOverridesRootPath
-        AssemblyProbingPaths                = $AssemblyProbingPaths
+        Resource                        = 'Bindings'
+        Path                            = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Condition                       = $Condition
+        ExcelSettingOverridesFolderPath = $ExcelSettingOverridesFolderPath
+        AssemblyProbingFolderPaths      = $AssemblyProbingFolderPaths
     }
     New-ResourceItem @arguments -PassThru:$PassThru
 }
