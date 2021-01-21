@@ -46,7 +46,6 @@
         'SqlDatabase',
         'SqlDeploymentScript',
         'SqlUndeploymentScript',
-        'Transform',
         'XmlConfiguration'
     )
     CmdletsToExport       = @()
@@ -82,7 +81,6 @@
         # SqlUndeploymentScript.ps1
         'New-SqlUndeploymentScript',
         # Resource.ps1
-<<<<<<<
         'Get-ResourceItem',
         'New-ResourceItem',
         'New-ResourceManifest'
