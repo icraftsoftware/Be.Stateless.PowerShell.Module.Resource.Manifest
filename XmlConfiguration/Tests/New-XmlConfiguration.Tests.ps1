@@ -41,7 +41,7 @@ Describe 'New-XmlConfiguration' {
 
                 $actualItem = New-XmlConfiguration -Path TestDrive:\one.txt -PassThru
 
-                Compare-Item -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
@@ -52,7 +52,7 @@ Describe 'New-XmlConfiguration' {
                 $actualItems = New-XmlConfiguration -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
                 $actualItems | Should -HaveCount 2
-                0..1 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
@@ -70,14 +70,14 @@ Describe 'New-XmlConfiguration' {
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $builtManifest = New-Manifest -Type Application -Name 'BizTalk.Factory' -Build {
+                $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
                     New-XmlConfiguration -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
                 $builtManifest.ContainsKey('XmlConfigurations') | Should -BeTrue
                 $builtManifest.XmlConfigurations | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-Item -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlConfigurations[$_] | Should -BeNullOrEmpty }
+                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlConfigurations[$_] | Should -BeNullOrEmpty }
             }
         }
 

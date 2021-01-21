@@ -40,13 +40,13 @@ function New-XmlConfiguration {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
         Resource  = 'XmlConfigurations'
-        Path      = $Path | Resolve-Path | Where-Object { $_.Path -NotMatch "\.undo\.\d{18}\." }  | Select-Object -ExpandProperty ProviderPath
+        Path  = $Path | Resolve-Path | Where-Object { $_.Path -NotMatch "\.undo\.\d{18}\." }  | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
     New-ResourceItem @arguments -PassThru:$PassThru
     $arguments = @{
         Resource  = 'UndoXmlConfigurations'
-        Path      = $Path | Resolve-Path | Where-Object { $_.Path -Match "\.undo\.\d{18}\." } | Select-Object -ExpandProperty ProviderPath
+        Path  = $Path | Resolve-Path | Where-Object { $_.Path -Match "\.undo\.\d{18}\." } | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
     if ($null -ne $arguments.Path) {
