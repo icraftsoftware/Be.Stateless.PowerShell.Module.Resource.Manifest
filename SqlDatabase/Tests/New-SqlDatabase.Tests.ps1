@@ -21,7 +21,7 @@ Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psm1 -Force
 Describe 'New-SqlDatabase' {
     InModuleScope Resource.Manifest {
 
-        Context 'When assembly file does not exist' {
+        Context 'When path does not exist' {
             BeforeAll {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
