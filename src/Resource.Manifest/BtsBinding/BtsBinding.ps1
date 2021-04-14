@@ -50,7 +50,7 @@ function New-Binding {
         [Parameter(Mandatory = $false, ParameterSetName = 'override-path')]
         [Parameter(Mandatory = $false, ParameterSetName = 'override-type')]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
+        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [psobject]
         $Condition = $true,
 

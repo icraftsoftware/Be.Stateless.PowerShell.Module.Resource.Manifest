@@ -18,14 +18,19 @@
 
 Set-StrictMode -Version Latest
 
-function New-Orchestration {
+function New-EventLogSource {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $LogName = 'Application',
+
         [Parameter(Mandatory = $true)]
-        [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject[]]
-        $Path,
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $Name,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -39,11 +44,13 @@ function New-Orchestration {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'Orchestrations'
-        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Resource  = 'EventLogSources'
+        LogName   = $LogName
+        Name      = $Name
         Condition = $Condition
     }
     New-ResourceItem @arguments -PassThru:$PassThru
 }
 
-Set-Alias -Name Orchestration -Value New-Orchestration
+Set-Alias -Name EventLogSource -Value New-EventLogSource
+
