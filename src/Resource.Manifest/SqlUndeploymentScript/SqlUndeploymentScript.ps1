@@ -33,6 +33,11 @@ function New-SqlUndeploymentScript {
         $Server,
 
         [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Database,
+
+        [Parameter(Mandatory = $false)]
         [AllowNull()]
         [hashtable]
         $Variables,
@@ -52,6 +57,7 @@ function New-SqlUndeploymentScript {
         Resource  = 'SqlUndeploymentScripts'
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Server    = $Server
+        Database  = $Database
         Condition = $Condition
         Variables = if ($null -ne $Variables -and ($Variables.Keys | Test-Any)) { $Variables } else { @{} }
     }
