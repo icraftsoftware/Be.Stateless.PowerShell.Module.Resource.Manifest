@@ -30,23 +30,23 @@ Describe 'New-XmlConfiguration' {
             }
         }
 
-        Context 'When XML Configuration file exists' {
+        Context 'When Configuration Specification file exists' {
             BeforeAll {
                 # create some empty files
-                '' > TestDrive:\one.txt
-                '' > TestDrive:\two.txt
+                '' > TestDrive:\one.config
+                '' > TestDrive:\two.config
             }
             It 'Returns a custom object with both a path and a name property.' {
-                $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
 
-                $actualItem = New-XmlConfiguration -Path TestDrive:\one.txt -PassThru
+                $actualItem = New-XmlConfiguration -Path TestDrive:\one.config -PassThru
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'two.config' ; Path = 'TestDrive:\two.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $actualItems = New-XmlConfiguration -Path (Get-ChildItem -Path TestDrive:\) -PassThru
@@ -56,18 +56,18 @@ Describe 'New-XmlConfiguration' {
             }
         }
 
-        Context 'Creating XML Configurations must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating XmlConfigurations must be done via the ScriptBlock passed to New-Manifest' {
             BeforeAll {
                 # create some empty files
-                '' > TestDrive:\one.txt
-                '' > TestDrive:\two.txt
-                '' > TestDrive:\six.txt
+                '' > TestDrive:\one.config
+                '' > TestDrive:\two.config
+                '' > TestDrive:\six.config
             }
-            It 'Accumulates XML Configurations into the Manifest being built.' {
+            It 'Accumulates XmlConfigurations into the Manifest being built.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'six.config' ; Path = 'TestDrive:\six.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'two.config' ; Path = 'TestDrive:\two.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {

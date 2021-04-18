@@ -25,7 +25,7 @@ Describe 'Get-ResourceItem' {
             It 'Throws when no resource item is found.' {
                 { Get-ResourceItem -Name Test } | Should -Throw `
                     -ExceptionType ([System.Management.Automation.RuntimeException]) `
-                    -ExpectedMessage "Resource item not found ``[Path: '*', Name: 'Test', Extensions = '.dll, .exe']."
+                    -ExpectedMessage "Resource item not found ``[Path: '*', Name: 'Test', Extension = '.dll, .exe']."
             }
         }
 

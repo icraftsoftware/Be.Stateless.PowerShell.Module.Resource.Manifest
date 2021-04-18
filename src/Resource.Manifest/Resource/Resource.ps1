@@ -41,7 +41,7 @@ function Get-ResourceItem {
         $Name | ForEach-Object -Process { $_ } -PipelineVariable currentName | ForEach-Object -Process {
             $items = Get-ChildItem -Path $FolderPath -File -Recurse | Where-Object -FilterScript { $_.BaseName -eq $currentName -and $_.Extension -in $Extension } | Get-Item
             if ($items | Test-None) {
-                throw "Resource item not found [Path: '$FolderPath', Name: '$currentName', Extensions = '$($Extension -join ", ")']."
+                throw "Resource item not found [Path: '$FolderPath', Name: '$currentName', Extension = '$($Extension -join ", ")']."
             }
             $duplicateItems = $items | Group-Object Name | Where-Object Count -GT 1
             if ($duplicateItems | Test-Any) {
@@ -53,7 +53,7 @@ function Get-ResourceItem {
 }
 
 function New-ResourceItem {
-    [CmdletBinding(DefaultParameterSetName = 'file-resource')]
+    [CmdletBinding(DefaultParameterSetName = 'named-resource')]
     [OutputType([PSCustomObject[]])]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'named-resource')]
@@ -63,6 +63,7 @@ function New-ResourceItem {
         $Resource,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'named-resource')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
         [ValidateNotNullOrEmpty()]
         [string[]]
         $Name,
@@ -74,7 +75,7 @@ function New-ResourceItem {
 
         [Parameter(Mandatory = $false, ParameterSetName = 'named-resource')]
         [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
+        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [ValidateNotNullOrEmpty()]
         [psobject]
         $Condition = $true,
@@ -102,7 +103,7 @@ function New-ResourceItem {
         if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
             Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $_
         } else {
-            Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value (Split-Path -Path $_ -Leaf)
+            Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $(if ($Name | Test-Any) { $Name } else { Split-Path -Path $_ -Leaf })
             Add-Member -InputObject $item -MemberType NoteProperty -Name Path -Value $_
         }
         Add-ResourceItemMembers -Item $item -Members $splattedArguments

@@ -67,6 +67,20 @@ Describe 'New-ResourceItem' {
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
+            It 'Returns a custom object with both a path and a custom name property.' {
+                $expectedItem = [PSCustomObject]@{ Name = 'MyName' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+
+                $actualItem = New-ResourceItem -Resource SomeResource -Path TestDrive:\one.txt -Name MyName -PassThru
+
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+            }
+            It 'Returns a custom object with only a name property.' {
+                $expectedItem = [PSCustomObject]@{ Name = 'MyName' }
+
+                $actualItem = New-ResourceItem -Resource SomeResource -Name MyName -PassThru
+
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+            }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }

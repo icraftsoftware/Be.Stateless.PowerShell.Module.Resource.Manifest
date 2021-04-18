@@ -18,14 +18,40 @@
 
 Set-StrictMode -Version Latest
 
-function New-Orchestration {
+function New-WindowsService {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
         [Parameter(Mandatory = $true)]
         [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject[]]
+        [psobject]
         $Path,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [pscredential]
+        $Credential,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Description,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $DisplayName,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Automatic', 'AutomaticDelayedStart', 'Disabled', 'Manual')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $StartupType = 'Automatic',
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -39,11 +65,17 @@ function New-Orchestration {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'Orchestrations'
-        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        Condition = $Condition
+        Resource    = 'WindowsServices'
+        Path        = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Name        = $Name
+        Credential  = $Credential
+        StartupType = $StartupType
+        Condition   = $Condition
     }
+    if (![string]::IsNullOrWhiteSpace($Description)) { $arguments.Description = $Description }
+    if (![string]::IsNullOrWhiteSpace($DisplayName)) { $arguments.DisplayName = $DisplayName }
+
     New-ResourceItem @arguments -PassThru:$PassThru
 }
 
-Set-Alias -Name Orchestration -Value New-Orchestration
+Set-Alias -Name WindowsService -Value New-WindowsService

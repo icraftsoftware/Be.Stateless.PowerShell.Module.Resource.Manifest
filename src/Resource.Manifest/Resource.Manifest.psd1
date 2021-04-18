@@ -22,7 +22,7 @@
     GUID                  = '07e35b0e-3441-46b4-82e6-d8daafb837bd'
     Author                = 'François Chabot'
     CompanyName           = 'be.stateless'
-    Copyright             = '(c) 2020 be.stateless. All rights reserved.'
+    Copyright             = '© 2020 - 2021 be.stateless. All rights reserved.'
     Description           = 'Commands to define and process resource manifests that can later be used to drive operations, in a declarative way, according to the nature of the resources to operate upon.'
     ProcessorArchitecture = 'None'
     PowerShellVersion     = '5.0'
@@ -37,6 +37,7 @@
         'BamIndex',
         'Binding',
         'Component',
+        'EventLogSource',
         'LibraryManifest',
         'Map',
         'Orchestration',
@@ -47,7 +48,10 @@
         'SqlDeploymentScript',
         'SqlUndeploymentScript',
         'SsoConfigStore',
-        'XmlConfiguration'
+        'WindowsService',
+        'XmlConfiguration',
+        'XmlConfigurationAction',
+        'XmlUnconfigurationAction'
     )
     CmdletsToExport       = @()
     FunctionsToExport     = @(
@@ -75,6 +79,8 @@
         'New-PipelineComponent',
         # BtsSchema.ps1
         'New-Schema',
+        # EnventLogSource.ps1
+        'New-EventLogSource',
         # SqlDatabase.ps1
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1
@@ -87,8 +93,14 @@
         'New-ResourceManifest',
         # SsoConfigStore.ps1
         'New-SsoConfigStore',
+        # WindowsService.ps1
+        'New-WindowsService',
         # XmlConfiguration.ps1
-        'New-XmlConfiguration'
+        'New-XmlConfiguration',
+        # XmlConfigurationAction.ps1
+        'New-XmlConfigurationAction',
+        # XmlUnconfigurationAction.ps1
+        'New-XmlUnconfigurationAction'
     )
     VariablesToExport     = @()
     PrivateData           = @{

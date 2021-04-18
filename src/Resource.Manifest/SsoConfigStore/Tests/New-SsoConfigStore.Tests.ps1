@@ -89,14 +89,14 @@ Describe 'New-SsoConfigStore' {
             }
         }
 
-        Context 'Creating ConfigStores must be done via the ScriptBlock passed to New-Manifest' {
+        Context 'Creating SsoConfigStores must be done via the ScriptBlock passed to New-Manifest' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
                 '' > TestDrive:\two.txt
                 '' > TestDrive:\six.txt
             }
-            It 'Accumulates ConfigStores into the Manifest being built.' {
+            It 'Accumulates SsoConfigStores into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
                     [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }

@@ -29,7 +29,7 @@ function New-Pipeline {
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
+        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [psobject]
         $Condition = $true,
 

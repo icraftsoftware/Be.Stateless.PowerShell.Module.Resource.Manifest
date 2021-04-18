@@ -79,11 +79,11 @@ Describe 'New-SqlDatabase' {
             }
             It 'Accumulates SqlDeploymentScripts and SqlUndeploymentScripts into the Manifest being built.' {
                 $expectedDeploymentItems = @(
-                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
                 $expectedUndeploymentItems = @(
-                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -102,15 +102,15 @@ Describe 'New-SqlDatabase' {
             }
             It 'Accumulates BizTalk Backup Job Enlistment Scripts into the Manifest being built.' {
                 $expectedDeploymentItems = @(
-                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'Backup_Setup_All_Tables.sql' ; Server = 'localhost' ; Database = 'BizTalkFactoryMgmtDb' ; Variables = @{} ; Path = (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Tables.sql') | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'Backup_Setup_All_Procs.sql' ; Server = 'localhost' ; Database = 'BizTalkFactoryMgmtDb' ; Variables = @{} ; Path = (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Procs.sql') | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'IncludeCustomDatabaseInOtherBackupDatabases.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' ; ServerName = 'localhost' ; BTSServer = $env:COMPUTERNAME } ; Path = "$PSScriptRoot\..\IncludeCustomDatabaseInOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'IncludeCustomDatabaseInOtherBackupDatabases.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' ; ServerName = 'localhost' ; BTSServer = $env:COMPUTERNAME } ; Path = "$PSScriptRoot\..\IncludeCustomDatabaseInOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
                 $expectedUndeploymentItems = @(
-                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'RemoveCustomDatabaseFromOtherBackupDatabases.sql' ; Server = 'localhost' ; Database = '' ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' } ; Path = "$PSScriptRoot\..\RemoveCustomDatabaseFromOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{} ; Path = 'TestDrive:\BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'RemoveCustomDatabaseFromOtherBackupDatabases.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' } ; Path = "$PSScriptRoot\..\RemoveCustomDatabaseFromOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
