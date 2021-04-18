@@ -67,7 +67,7 @@ function New-SqlDatabase {
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
+        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [psobject]
         $Condition = $true,
 
@@ -93,6 +93,8 @@ function New-SqlDatabase {
         New-SqlUndeploymentScript @arguments -Path (Join-Path $Path "$($Manifest.Properties.Name).Drop.$_.sql") -PassThru:$PassThru
 
         if ($EnlistInBizTalkBackupJob) {
+            New-SqlDeploymentScript -Path (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Tables.sql') -Server $Server -Database $_ -Condition $Condition -PassThru:$PassThru
+            New-SqlDeploymentScript -Path (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Procs.sql') -Server $Server -Database $_ -Condition $Condition -PassThru:$PassThru
             New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server $Server -Condition $Condition -PassThru:$PassThru `
                 -Variables @{
                 CustomDatabaseName = $_

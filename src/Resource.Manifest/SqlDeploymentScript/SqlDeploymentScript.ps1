@@ -33,13 +33,18 @@ function New-SqlDeploymentScript {
         $Server,
 
         [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Database,
+
+        [Parameter(Mandatory = $false)]
         [AllowNull()]
         [hashtable]
         $Variables,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] })]
+        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [psobject]
         $Condition = $true,
 
@@ -52,6 +57,7 @@ function New-SqlDeploymentScript {
         Resource  = 'SqlDeploymentScripts'
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Server    = $Server
+        Database  = $Database
         Condition = $Condition
         Variables = if ($null -ne $Variables -and ($Variables.Keys | Test-Any)) { $Variables } else { @{} }
     }
