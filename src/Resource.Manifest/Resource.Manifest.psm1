@@ -30,8 +30,10 @@ Set-StrictMode -Version Latest
 . $PSScriptRoot\BtsOrchestration\BtsOrchestration.ps1
 . $PSScriptRoot\BtsPipeline\BtsPipeline.ps1
 . $PSScriptRoot\BtsPipelineComponent\BtsPipelineComponent.ps1
+. $PSScriptRoot\BtsProcessDescriptor\BtsProcessDescriptor.ps1
 . $PSScriptRoot\BtsSchema\BtsSchema.ps1
 . $PSScriptRoot\EventLogSource\EventLogSource.ps1
+. $PSScriptRoot\Installer\Installer.ps1
 . $PSScriptRoot\SqlDatabase\SqlDatabase.ps1
 . $PSScriptRoot\SqlDeploymentScript\SqlDeploymentScript.ps1
 . $PSScriptRoot\SqlUndeploymentScript\SqlUndeploymentScript.ps1

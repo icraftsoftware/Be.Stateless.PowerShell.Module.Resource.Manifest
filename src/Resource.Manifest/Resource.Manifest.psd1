@@ -38,11 +38,13 @@
         'Binding',
         'Component',
         'EventLogSource',
+        'Installer',
         'LibraryManifest',
         'Map',
         'Orchestration',
         'Pipeline',
         'PipelineComponent',
+        'ProcessDescriptor',
         'Schema',
         'SqlDatabase',
         'SqlDeploymentScript',
@@ -77,10 +79,14 @@
         'New-Pipeline',
         # BtsPipelineComponent.ps1
         'New-PipelineComponent',
+        # BtsProcessDescriptor.ps1
+        'New-ProcessDescriptor',
         # BtsSchema.ps1
         'New-Schema',
         # EnventLogSource.ps1
         'New-EventLogSource',
+        # Installer.ps1
+        'New-Installer',
         # SqlDatabase.ps1
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1
