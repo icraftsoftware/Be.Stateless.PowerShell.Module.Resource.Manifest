@@ -59,7 +59,7 @@ function New-SqlUndeploymentScript {
         Server    = $Server
         Database  = $Database
         Condition = $Condition
-        Variables = if ($null -ne $Variables -and ($Variables.Keys | Test-Any)) { $Variables } else { @{} }
+        Variables = if ($null -ne $Variables -and ($Variables.Keys | Test-Any)) { $Variables } else { @{ } }
     }
     New-ResourceItem @arguments -PassThru:$PassThru
 }

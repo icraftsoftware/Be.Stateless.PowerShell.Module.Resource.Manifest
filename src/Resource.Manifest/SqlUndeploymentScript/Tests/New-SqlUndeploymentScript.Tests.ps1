@@ -59,8 +59,8 @@ Describe 'New-SqlUndeploymentScript' {
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{} }
-                    [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{} }
+                    [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{ } }
+                    [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{ } }
                 )
 
                 $actualItems = New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -Server localhost -PassThru
@@ -79,9 +79,9 @@ Describe 'New-SqlUndeploymentScript' {
             }
             It 'Accumulates SqlUndeploymentScripts into the Manifest being built.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{} }
-                    [PSCustomObject]@{ Name = 'six.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{} }
-                    [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{} }
+                    [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{ } }
+                    [PSCustomObject]@{ Name = 'six.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{ } }
+                    [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variables = @{ } }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {

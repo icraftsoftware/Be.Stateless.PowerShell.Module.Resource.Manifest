@@ -84,7 +84,7 @@ function New-XmlConfigurationAction {
             $arguments.Name = $Name
         }
         { $_ -in @('Append', 'Update') } {
-            if ($Attributes | Test-Any) { $arguments.Attributes = $Attributes } else { $arguments.Attributes = @{} }
+            if ($Attributes | Test-Any) { $arguments.Attributes = $Attributes } else { $arguments.Attributes = @{ } }
         }
     }
     New-ResourceItem @arguments -PassThru:$PassThru

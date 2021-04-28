@@ -43,7 +43,7 @@ Describe 'New-XmlConfigurationAction' {
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a custom object with an insert action.' {
-                $expectedItem = [PSCustomObject]@{ Name = 'node' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Append' ; XPath = '/configuration' ; Attributes = @{} }
+                $expectedItem = [PSCustomObject]@{ Name = 'node' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Append' ; XPath = '/configuration' ; Attributes = @{ } }
 
                 $actualItem = New-XmlConfigurationAction -Path TestDrive:\one.config -Append /configuration -ElementName node -PassThru
 
