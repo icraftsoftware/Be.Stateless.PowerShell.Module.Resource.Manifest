@@ -41,11 +41,11 @@ Describe 'New-Binding' {
             It 'Throws because AssemblyProbingFolderPaths do not exist.' {
                 { New-Binding -Path TestDrive:\six.txt -AssemblyProbingFolderPaths 'TestDrive:\foo' -PassThru } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
-            It 'Does not throw because EnvironmentSettingOverridesType is null.' {
-                { New-Binding -Path TestDrive:\six.txt -EnvironmentSettingOverridesType $null -PassThru } | Should -Not -Throw
+            It 'Does not throw because EnvironmentSettingOverridesTypeName is null.' {
+                { New-Binding -Path TestDrive:\six.txt -EnvironmentSettingOverridesTypeName $null -PassThru } | Should -Not -Throw
             }
-            It 'Does not throw because EnvironmentSettingOverridesType is empty.' {
-                { New-Binding -Path TestDrive:\six.txt -EnvironmentSettingOverridesType '' -PassThru } | Should -Not -Throw
+            It 'Does not throw because EnvironmentSettingOverridesTypeName is empty.' {
+                { New-Binding -Path TestDrive:\six.txt -EnvironmentSettingOverridesTypeName '' -PassThru } | Should -Not -Throw
             }
             It 'Does not throw because ExcelSettingOverridesFolderPath is null.' {
                 { New-Binding -Path TestDrive:\six.txt -ExcelSettingOverridesFolderPath $null -PassThru } | Should -Not -Throw
@@ -74,15 +74,15 @@ Describe 'New-Binding' {
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-            It 'Returns an object with AssemblyProbingFolderPaths and EnvironmentSettingOverridesType.' {
+            It 'Returns an object with AssemblyProbingFolderPaths and EnvironmentSettingOverridesTypeName.' {
                 $expectedItem = [PSCustomObject]@{
-                    Name                            = 'one.txt'
-                    Path                            = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-                    AssemblyProbingFolderPaths      = ($PSScriptRoot | Resolve-Path | Split-Path -Parent), ($PSScriptRoot | Resolve-Path | Split-Path -Parent | Split-Path -Parent)
-                    EnvironmentSettingOverridesType = 'some-environment-setting-overrides-type-name'
+                    Name                                = 'one.txt'
+                    Path                                = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+                    AssemblyProbingFolderPaths          = ($PSScriptRoot | Resolve-Path | Split-Path -Parent), ($PSScriptRoot | Resolve-Path | Split-Path -Parent | Split-Path -Parent)
+                    EnvironmentSettingOverridesTypeName = 'some-environment-setting-overrides-type-name'
                 }
 
-                $actualItem = New-Binding -Path TestDrive:\one.txt -AssemblyProbingFolderPaths $expectedItem.AssemblyProbingFolderPaths[0], $expectedItem.AssemblyProbingFolderPaths[1] -EnvironmentSettingOverridesType $expectedItem.EnvironmentSettingOverridesType -PassThru
+                $actualItem = New-Binding -Path TestDrive:\one.txt -AssemblyProbingFolderPaths $expectedItem.AssemblyProbingFolderPaths[0], $expectedItem.AssemblyProbingFolderPaths[1] -EnvironmentSettingOverridesTypeName $expectedItem.EnvironmentSettingOverridesTypeName -PassThru
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }

@@ -19,10 +19,10 @@
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psd1 -Force
 
 Describe 'New-ResourceItem' {
-    BeforeAll {
-        $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
-    }
     InModuleScope Resource.Manifest {
+        BeforeAll {
+            $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
+        }
 
         Context 'Creating a new named resource Item' {
             It 'Throws when name is null.' {

@@ -222,7 +222,7 @@ function Compare-ResourceItem {
     param (
         [Parameter(Mandatory = $true)]
         [ValidateNotNull()]
-        [ValidateScript( { $_.GetType().Name -eq 'PSCustomObject' })]
+        [ValidateScript( { $_.GetType().Name -eq 'PSCustomObject' } )]
         [PSCustomObject]
         $ReferenceItem,
 

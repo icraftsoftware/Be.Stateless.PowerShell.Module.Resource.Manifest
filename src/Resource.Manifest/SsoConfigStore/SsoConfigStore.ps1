@@ -40,10 +40,15 @@ function New-SsoConfigStore {
         $UserGroups,
 
         [Parameter(Mandatory = $false)]
+        [ValidateScript( { ($_ | Test-None) -or ($_ | Test-Path -PathType Container) } )]
+        [string[]]
+        $AssemblyProbingFolderPaths,
+
+        [Parameter(Mandatory = $false)]
         [AllowNull()]
         [AllowEmptyString()]
         [string]
-        $EnvironmentSettingOverridesType,
+        $EnvironmentSettingOverridesTypeName,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -57,14 +62,16 @@ function New-SsoConfigStore {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource            = 'SsoConfigStores'
-        Path                = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        Condition           = $Condition
+        Resource                   = 'SsoConfigStores'
+        Path                       = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Condition                  = $Condition
         # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
-        AdministratorGroups = if ($AdministratorGroups | Test-Any) { $AdministratorGroups } else { , @() }
-        UserGroups          = if ($UserGroups | Test-Any) { $UserGroups } else { , @() }
+        AdministratorGroups        = if ($AdministratorGroups | Test-Any) { $AdministratorGroups } else { , @() }
+        UserGroups                 = if ($UserGroups | Test-Any) { $UserGroups } else { , @() }
+        # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
+        AssemblyProbingFolderPaths = if ($AssemblyProbingFolderPaths | Test-Any) { $AssemblyProbingFolderPaths | Resolve-Path | Select-Object -ExpandProperty ProviderPath } else { , @() }
     }
-    if (-not [string]::IsNullOrWhiteSpace($EnvironmentSettingOverridesType)) { $arguments.EnvironmentSettingOverridesType = $EnvironmentSettingOverridesType }
+    if (-not [string]::IsNullOrWhiteSpace($EnvironmentSettingOverridesTypeName)) { $arguments.EnvironmentSettingOverridesTypeName = $EnvironmentSettingOverridesTypeName }
 
     New-ResourceItem @arguments -PassThru:$PassThru
 }

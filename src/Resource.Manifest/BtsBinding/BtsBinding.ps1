@@ -38,7 +38,7 @@ function New-Binding {
         [AllowNull()]
         [AllowEmptyString()]
         [string]
-        $EnvironmentSettingOverridesType,
+        $EnvironmentSettingOverridesTypeName,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'override-path')]
         [AllowNull()]
@@ -63,16 +63,12 @@ function New-Binding {
     $arguments = @{
         Resource                   = 'Bindings'
         Path                       = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        AssemblyProbingFolderPaths = if ($AssemblyProbingFolderPaths | Test-Any) {
-            $AssemblyProbingFolderPaths | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        } else {
-            # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
-            , @()
-        }
+        # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
+        AssemblyProbingFolderPaths = if ($AssemblyProbingFolderPaths | Test-Any) { $AssemblyProbingFolderPaths | Resolve-Path | Select-Object -ExpandProperty ProviderPath } else { , @() }
         Condition                  = $Condition
     }
     if ($PSCmdlet.ParameterSetName -eq 'override-type') {
-        if (-not [string]::IsNullOrWhiteSpace($EnvironmentSettingOverridesType)) { $arguments.EnvironmentSettingOverridesType = $EnvironmentSettingOverridesType }
+        if (-not [string]::IsNullOrWhiteSpace($EnvironmentSettingOverridesTypeName)) { $arguments.EnvironmentSettingOverridesTypeName = $EnvironmentSettingOverridesTypeName }
     } else {
         if (-not [string]::IsNullOrWhiteSpace($ExcelSettingOverridesFolderPath)) { $arguments.ExcelSettingOverridesFolderPath = Resolve-Path -Path $ExcelSettingOverridesFolderPath | Select-Object -ExpandProperty ProviderPath }
     }

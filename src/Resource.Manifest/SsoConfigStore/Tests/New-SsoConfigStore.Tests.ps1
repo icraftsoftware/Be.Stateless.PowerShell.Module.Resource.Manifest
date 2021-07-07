@@ -48,11 +48,17 @@ Describe 'New-SsoConfigStore' {
             It 'Does not throw because AdministratorGroup is empty.' {
                 { New-SsoConfigStore -Path TestDrive:\six.txt -AdministratorGroup @() -PassThru } | Should -Not -Throw
             }
-            It 'Does not throw because EnvironmentSettingOverridesType is null.' {
-                { New-SsoConfigStore -Path TestDrive:\six.txt -EnvironmentSettingOverridesType $null -PassThru } | Should -Not -Throw
+            It 'Does not throw because AssemblyProbingFolderPaths is empty.' {
+                { New-SsoConfigStore -Path TestDrive:\six.txt -AssemblyProbingFolderPaths @() -PassThru } | Should -Not -Throw
             }
-            It 'Does not throw because EnvironmentSettingOverridesType is empty.' {
-                { New-SsoConfigStore -Path TestDrive:\six.txt -EnvironmentSettingOverridesType '' -PassThru } | Should -Not -Throw
+            It 'Throws because AssemblyProbingFolderPaths do not exist.' {
+                { New-SsoConfigStore -Path TestDrive:\six.txt -AssemblyProbingFolderPaths 'TestDrive:\foo' -PassThru } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+            }
+            It 'Does not throw because EnvironmentSettingOverridesTypeName is null.' {
+                { New-SsoConfigStore -Path TestDrive:\six.txt -EnvironmentSettingOverridesTypeName $null -PassThru } | Should -Not -Throw
+            }
+            It 'Does not throw because EnvironmentSettingOverridesTypeName is empty.' {
+                { New-SsoConfigStore -Path TestDrive:\six.txt -EnvironmentSettingOverridesTypeName '' -PassThru } | Should -Not -Throw
             }
         }
 
@@ -63,23 +69,37 @@ Describe 'New-SsoConfigStore' {
                 '' > TestDrive:\two.txt
             }
             It 'Returns a custom object with both a path and a name property.' {
-                $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
+                $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() ; AssemblyProbingFolderPaths = @() }
 
                 $actualItem = New-SsoConfigStore -Path TestDrive:\one.txt -PassThru
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-            It 'Returns a custom object with a UserGroup, AdministratorGroup, and a EnvironmentSettingOverridesType property.' {
-                $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @('BizTalk Server Administrators') ; UserGroups = @('BizTalk Application Users') ; EnvironmentSettingOverridesType = 'override-type' }
+            It 'Returns a custom object with a UserGroup, AdministratorGroup, and a EnvironmentSettingOverridesTypeName property.' {
+                $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @('BizTalk Server Administrators') ; UserGroups = @('BizTalk Application Users') ; EnvironmentSettingOverridesTypeName = 'override-type' ; AssemblyProbingFolderPaths = @() }
 
-                $actualItem = New-SsoConfigStore -Path TestDrive:\one.txt -PassThru -AdministratorGroups 'BizTalk Server Administrators' -UserGroups 'BizTalk Application Users' -EnvironmentSettingOverridesType 'override-type'
+                $actualItem = New-SsoConfigStore -Path TestDrive:\one.txt -PassThru -AdministratorGroups 'BizTalk Server Administrators' -UserGroups 'BizTalk Application Users' -EnvironmentSettingOverridesTypeName 'override-type'
+
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+            }
+            It 'Returns an object with AssemblyProbingFolderPaths and EnvironmentSettingOverridesTypeName.' {
+                $expectedItem = [PSCustomObject]@{
+                    Name                                = 'one.txt'
+                    Path                                = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+                    AdministratorGroups                 = @()
+                    UserGroups                          = @()
+                    AssemblyProbingFolderPaths          = ($PSScriptRoot | Resolve-Path | Split-Path -Parent), ($PSScriptRoot | Resolve-Path | Split-Path -Parent | Split-Path -Parent)
+                    EnvironmentSettingOverridesTypeName = 'some-environment-setting-overrides-type-name'
+                }
+
+                $actualItem = New-SsoConfigStore -Path TestDrive:\one.txt -AssemblyProbingFolderPaths $expectedItem.AssemblyProbingFolderPaths[0], $expectedItem.AssemblyProbingFolderPaths[1] -EnvironmentSettingOverridesTypeName $expectedItem.EnvironmentSettingOverridesTypeName -PassThru
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
-                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
+                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() ; AssemblyProbingFolderPaths = @() }
+                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() ; AssemblyProbingFolderPaths = @() }
                 )
 
                 $actualItems = New-SsoConfigStore -Path (Get-ChildItem -Path TestDrive:\) -PassThru
@@ -98,9 +118,9 @@ Describe 'New-SsoConfigStore' {
             }
             It 'Accumulates SsoConfigStores into the Manifest being built.' {
                 $expectedItems = @(
-                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
-                    [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
-                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() }
+                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() ; AssemblyProbingFolderPaths = @() }
+                    [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() ; AssemblyProbingFolderPaths = @() }
+                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroups = @() ; UserGroups = @() ; AssemblyProbingFolderPaths = @() }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
