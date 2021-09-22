@@ -62,7 +62,7 @@ function New-XmlConfigurationAction {
         [Parameter(Mandatory = $false, ParameterSetName = 'Delete')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Append')]

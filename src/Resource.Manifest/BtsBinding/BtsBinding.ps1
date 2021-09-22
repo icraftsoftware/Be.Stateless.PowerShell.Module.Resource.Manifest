@@ -25,7 +25,7 @@ function New-Binding {
         [Parameter(Mandatory = $true, ParameterSetName = 'override-path')]
         [Parameter(Mandatory = $true, ParameterSetName = 'override-type')]
         [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject[]]
+        [PSObject[]]
         $Path,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'override-path')]
@@ -51,7 +51,7 @@ function New-Binding {
         [Parameter(Mandatory = $false, ParameterSetName = 'override-type')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'override-path')]

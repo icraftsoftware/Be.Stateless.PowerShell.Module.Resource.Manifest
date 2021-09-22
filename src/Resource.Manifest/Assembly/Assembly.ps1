@@ -24,13 +24,18 @@ function New-Assembly {
     param (
         [Parameter(Mandatory = $true)]
         [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject[]]
+        [PSObject[]]
         $Path,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
+        [string]
+        $InstallReference,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false)]
@@ -43,6 +48,7 @@ function New-Assembly {
         Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
         Condition = $Condition
     }
+    if (-not [string]::IsNullOrEmpty($InstallReference)) { $arguments.InstallReference = $InstallReference }
     New-ResourceItem @arguments -PassThru:$PassThru
 }
 

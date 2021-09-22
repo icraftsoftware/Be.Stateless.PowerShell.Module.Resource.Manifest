@@ -33,6 +33,7 @@ Set-StrictMode -Version Latest
 . $PSScriptRoot\BtsProcessDescriptor\BtsProcessDescriptor.ps1
 . $PSScriptRoot\BtsSchema\BtsSchema.ps1
 . $PSScriptRoot\EventLogSource\EventLogSource.ps1
+. $PSScriptRoot\File\File.ps1
 . $PSScriptRoot\Installer\Installer.ps1
 . $PSScriptRoot\SqlDatabase\SqlDatabase.ps1
 . $PSScriptRoot\SqlDeploymentScript\SqlDeploymentScript.ps1

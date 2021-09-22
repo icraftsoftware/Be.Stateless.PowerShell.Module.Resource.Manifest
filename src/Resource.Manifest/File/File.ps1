@@ -18,19 +18,19 @@
 
 Set-StrictMode -Version Latest
 
-function New-EventLogSource {
+function New-File {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $LogName = 'Application',
+        [Parameter(Mandatory = $true)]
+        [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
+        [PSObject[]]
+        $Path,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]
-        $Name,
+        [PSObject[]]
+        $Destination,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -44,13 +44,12 @@ function New-EventLogSource {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'EventLogSources'
-        LogName   = $LogName
-        Name      = $Name
-        Condition = $Condition
+        Resource    = 'Files'
+        Path        = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Destination = $Destination
+        Condition   = $Condition
     }
     New-ResourceItem @arguments -PassThru:$PassThru
 }
 
-Set-Alias -Name EventLogSource -Value New-EventLogSource
-
+Set-Alias -Name File -Value New-File

@@ -38,6 +38,7 @@
         'Binding',
         'Component',
         'EventLogSource',
+        'File',
         'Installer',
         'LibraryManifest',
         'Map',
@@ -83,8 +84,10 @@
         'New-ProcessDescriptor',
         # BtsSchema.ps1
         'New-Schema',
-        # EnventLogSource.ps1
+        # EventLogSource.ps1
         'New-EventLogSource',
+        # File.ps1
+        'New-File',
         # Installer.ps1
         'New-Installer',
         # SqlDatabase.ps1

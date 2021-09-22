@@ -43,6 +43,13 @@ Describe 'New-Assembly' {
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
+            It 'Returns a custom object with an InstallReference property.' {
+                $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; InstallReference = 'install-ref' }
+
+                $actualItem = New-Assembly -Path TestDrive:\one.txt -InstallReference 'install-ref' -PassThru
+
+                Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+            }
             It 'Returns a collection of custom objects with both a path and a name property.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
@@ -50,6 +57,17 @@ Describe 'New-Assembly' {
                 )
 
                 $actualItems = New-Assembly -Path (Get-ChildItem -Path TestDrive:\) -PassThru
+
+                $actualItems | Should -HaveCount 2
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            }
+            It 'Returns a collection of custom objects with an InstallReference property.' {
+                $expectedItems = @(
+                    [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; InstallReference = 'ref' }
+                    [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; InstallReference = 'ref' }
+                )
+
+                $actualItems = New-Assembly -Path (Get-ChildItem -Path TestDrive:\) -InstallReference ref -PassThru
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }

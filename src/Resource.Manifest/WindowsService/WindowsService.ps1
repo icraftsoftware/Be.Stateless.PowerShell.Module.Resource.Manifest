@@ -24,7 +24,7 @@ function New-WindowsService {
     param (
         [Parameter(Mandatory = $true)]
         [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject]
+        [PSObject]
         $Path,
 
         [Parameter(Mandatory = $true)]
@@ -34,7 +34,7 @@ function New-WindowsService {
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [pscredential]
+        [PSCredential]
         $Credential,
 
         [Parameter(Mandatory = $false)]
@@ -56,7 +56,7 @@ function New-WindowsService {
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false)]

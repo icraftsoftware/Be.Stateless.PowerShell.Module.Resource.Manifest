@@ -24,13 +24,13 @@ function New-Schema {
     param (
         [Parameter(Mandatory = $true)]
         [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject[]]
+        [PSObject[]]
         $Path,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false)]

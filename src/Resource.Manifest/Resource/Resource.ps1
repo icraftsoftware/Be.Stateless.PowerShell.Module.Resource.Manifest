@@ -70,14 +70,14 @@ function New-ResourceItem {
 
         [Parameter(Mandatory = $true, ParameterSetName = 'file-resource')]
         [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
-        [psobject[]]
+        [PSObject[]]
         $Path,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'named-resource')]
         [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [ValidateNotNullOrEmpty()]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'named-resource')]
@@ -267,7 +267,7 @@ function ConvertTo-SplattedArguments {
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [AllowEmptyCollection()]
-        [psobject[]]
+        [PSObject[]]
         $UnboundArguments
     )
     $splattedArguments = @{ }

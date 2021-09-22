@@ -21,7 +21,7 @@ Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psd1 -Force
 Describe 'New-WindowsService' {
     InModuleScope Resource.Manifest {
         BeforeAll {
-            $script:credential = New-Object -TypeName pscredential -ArgumentList '.\BTS_USER', (ConvertTo-SecureString p@ssw0rd -AsPlainText -Force)
+            $script:credential = New-Object -TypeName PSCredential -ArgumentList '.\BTS_USER', (ConvertTo-SecureString p@ssw0rd -AsPlainText -Force)
         }
 
         Context 'When service executable file does not exist' {

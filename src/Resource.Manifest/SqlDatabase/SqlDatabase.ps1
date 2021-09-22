@@ -53,7 +53,7 @@ function New-SqlDatabase {
 
         [Parameter(Mandatory = $true)]
         [ValidateScript( { $_ | Test-Path -PathType Container } )]
-        [psobject]
+        [PSObject]
         $Path,
 
         [Parameter(Mandatory = $false)]
@@ -68,7 +68,7 @@ function New-SqlDatabase {
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [psobject]
+        [PSObject]
         $Condition = $true,
 
         [Parameter(Mandatory = $false)]
