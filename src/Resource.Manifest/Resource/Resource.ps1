@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -69,9 +69,13 @@ function New-ResourceItem {
         $Name,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'file-resource')]
-        [ValidateScript( { $_ | Test-Path -PathType Leaf } )]
+        [ValidateScript( { $_ | ForEach-Object { (Test-Path -Path $_ -PathType Leaf) -or (Test-Path -Path $_ -IsValid) } } )]
         [PSObject[]]
         $Path,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
+        [switch]
+        $SkipPathResolution,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'named-resource')]
         [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
@@ -95,10 +99,19 @@ function New-ResourceItem {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
 
     $splattedArguments = ConvertTo-SplattedArguments -UnboundArguments $UnboundArguments
-    # any item is assumed to be included by default unless scpecified otherwise: when its Condition is either $false or deferred (a ScriptBlock)
+    # any item is assumed to be included by default unless specified otherwise: when its Condition is either $false or deferred (a ScriptBlock)
     if ($Condition -is [ScriptBlock] -or -not($Condition)) { $splattedArguments.Add('Condition', $Condition) }
 
-    $(if ($PSCmdlet.ParameterSetName -eq 'named-resource') { $Name } else { $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath }) | ForEach-Object -Process {
+    $items = $(if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
+            $Name
+        } elseif ($SkipPathResolution) {
+            $Path
+        } else {
+            # -ErrorAction, see https://stackoverflow.com/a/49493910/1789441
+            $Path | Resolve-Path -ErrorAction Stop | Select-Object -ExpandProperty ProviderPath
+        }
+    )
+    $items | ForEach-Object -Process {
         $item = New-Object -TypeName PSCustomObject
         if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
             Add-Member -InputObject $item -MemberType NoteProperty -Name Name -Value $_
@@ -130,7 +143,7 @@ function New-ResourceItem {
 
 function New-ResourceManifest {
     [CmdletBinding()]
-    [OutputType([hashtable])]
+    [OutputType([HashTable])]
     param (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -176,7 +189,7 @@ function New-ResourceManifest {
         param (
             [Parameter(Mandatory = $true)]
             [ValidateNotNullOrEmpty()]
-            [hashtable]
+            [HashTable]
             $Manifest
         )
         . $Build
@@ -201,7 +214,7 @@ function Add-ResourceItemMembers {
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [AllowEmptyCollection()]
-        [hashtable]
+        [HashTable]
         $Members
     )
     Process {
@@ -232,8 +245,8 @@ function Compare-ResourceItem {
         $DifferenceItem
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-    $referenceProperties = @(Get-Member -InputObject $ReferenceItem -MemberType  NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
-    $differenceProperties = @(Get-Member -InputObject $DifferenceItem -MemberType  NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
+    $referenceProperties = @(Get-Member -InputObject $ReferenceItem -MemberType NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
+    $differenceProperties = @(Get-Member -InputObject $DifferenceItem -MemberType NoteProperty, ScriptProperty | Select-Object -ExpandProperty Name)
     $referenceProperties + $differenceProperties | Select-Object -Unique -PipelineVariable key | ForEach-Object -Process {
         if ($referenceProperties.Contains($key) -and !$differenceProperties.Contains($key)) {
             [PSCustomObject]@{Property = $key ; ReferenceValue = $ReferenceItem.$key ; SideIndicator = '<' ; DifferenceValue = $null } | Tee-Object -Variable difference
@@ -251,7 +264,7 @@ function Compare-ResourceItem {
                     [PSCustomObject]@{Property = $key ; ReferenceValue = "($uniqueReferenceValues)" ; SideIndicator = '<>' ; DifferenceValue = "($uniqueDifferenceValues)" } | Tee-Object -Variable difference
                     Write-Verbose -Message $difference
                 }
-            } elseif ($referenceValue -is [hashtable] -and $differenceValue -is [hashtable]) {
+            } elseif ($referenceValue -is [HashTable] -and $differenceValue -is [HashTable]) {
                 Compare-HashTable -ReferenceHashTable $referenceValue -DifferenceHashTable $differenceValue -Prefix "$Key"
             } elseif ($referenceValue -ne $differenceValue) {
                 [PSCustomObject]@{Property = $key ; ReferenceValue = $referenceValue ; SideIndicator = '<>' ; DifferenceValue = $differenceValue } | Tee-Object -Variable difference
@@ -263,7 +276,7 @@ function Compare-ResourceItem {
 
 function ConvertTo-SplattedArguments {
     [CmdletBinding()]
-    [OutputType([hashtable])]
+    [OutputType([HashTable])]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [AllowEmptyCollection()]

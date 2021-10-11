@@ -18,39 +18,33 @@
 
 Set-StrictMode -Version Latest
 
-function New-EventLogSource {
+function New-LibraryManifest {
     [CmdletBinding()]
-    [OutputType([PSCustomObject[]])]
+    [OutputType([PSCustomObject])]
     param (
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $LogName = 'Application',
-
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]
+        [string]
         $Name,
 
         [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [PSObject]
-        $Condition = $true,
+        [AllowNull()]
+        [AllowEmptyString()]
+        [string]
+        $Description = $null,
 
-        [Parameter(Mandatory = $false)]
-        [switch]
-        $PassThru
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [scriptblock]
+        $Build
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'EventLogSources'
-        LogName   = $LogName
-        Name      = $Name
-        Condition = $Condition
+        Type = 'Library'
+        Name = $Name
     }
-    New-ResourceItem @arguments -PassThru:$PassThru
+    if (![string]::IsNullOrWhiteSpace($Description)) { $arguments.Description = $Description }
+    New-ResourceManifest @arguments -Build $Build
 }
 
-Set-Alias -Name EventLogSource -Value New-EventLogSource
-
+Set-Alias -Name LibraryManifest -Value New-LibraryManifest

@@ -18,39 +18,41 @@
 
 Set-StrictMode -Version Latest
 
-function New-EventLogSource {
+function New-ApplicationManifest {
     [CmdletBinding()]
-    [OutputType([PSCustomObject[]])]
+    [OutputType([PSCustomObject])]
     param (
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $LogName = 'Application',
-
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]
+        [string]
         $Name,
 
         [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
-        [PSObject]
-        $Condition = $true,
+        [AllowNull()]
+        [AllowEmptyString()]
+        [string]
+        $Description,
 
         [Parameter(Mandatory = $false)]
-        [switch]
-        $PassThru
+        [AllowNull()]
+        [AllowEmptyCollection()]
+        [string[]]
+        $Reference,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [scriptblock]
+        $Build
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'EventLogSources'
-        LogName   = $LogName
-        Name      = $Name
-        Condition = $Condition
+        Type       = 'Application'
+        Name       = $Name
+        # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
+        References = if ($Reference | Test-Any) { $Reference } else { , @() }
     }
-    New-ResourceItem @arguments -PassThru:$PassThru
+    if (![string]::IsNullOrWhiteSpace($Description)) { $arguments.Description = $Description }
+    New-ResourceManifest @arguments -Build $Build
 }
 
-Set-Alias -Name EventLogSource -Value New-EventLogSource
-
+Set-Alias -Name ApplicationManifest -Value New-ApplicationManifest

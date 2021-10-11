@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -20,11 +20,11 @@ Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psd1 -Force
 
 Describe 'New-ResourceItem' {
     InModuleScope Resource.Manifest {
-        BeforeAll {
-            $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
-        }
 
         Context 'Creating a new named resource Item' {
+            BeforeAll {
+                $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
+            }
             It 'Throws when name is null.' {
                 { New-ResourceItem -Resource SomeResource -Name $null } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
@@ -58,7 +58,10 @@ Describe 'New-ResourceItem' {
                 '' > TestDrive:\six.txt
             }
             It 'Throws when path is invalid.' {
-                { New-ResourceItem -Resource SomeResource -Path 'c:\folder\file.txt' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-ResourceItem -Resource SomeResource -Path 'c:\folder\file.txt' } | Should -Throw -ExceptionType 'System.Management.Automation.ItemNotFoundException, System.Management.Automation'
+            }
+            It 'Does not throw when path is invalid if resolution is skipped.' {
+                { New-ResourceItem -Resource SomeResource -Path 'c:\folder\file.txt' -SkipPathResolution } | Should -Not -Throw
             }
             It 'Returns a custom object with both a path and a name property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }

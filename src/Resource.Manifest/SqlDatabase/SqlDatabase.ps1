@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -38,40 +38,51 @@ Set-StrictMode -Version Latest
     © 2020 be.stateless.
 #>
 function New-SqlDatabase {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'without-backup')]
     [OutputType([PSCustomObject[]])]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'without-backup')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
         [ValidateNotNullOrEmpty()]
         [string[]]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'without-backup')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
         [ValidateNotNullOrEmpty()]
         [string]
         $Server,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'without-backup')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
         [ValidateScript( { $_ | Test-Path -PathType Container } )]
         [PSObject]
         $Path,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
         [switch]
         $EnlistInBizTalkBackupJob,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $ManagementServer,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
         [AllowNull()]
-        [hashtable]
+        [HashTable]
         $Variables,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
         [PSObject]
         $Condition = $true,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
         [switch]
         $PassThru
     )
@@ -95,13 +106,13 @@ function New-SqlDatabase {
         if ($EnlistInBizTalkBackupJob) {
             New-SqlDeploymentScript -Path (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Tables.sql') -Server $Server -Database $_ -Condition $Condition -PassThru:$PassThru
             New-SqlDeploymentScript -Path (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Procs.sql') -Server $Server -Database $_ -Condition $Condition -PassThru:$PassThru
-            New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server $Server -Condition $Condition -PassThru:$PassThru `
+            New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server $ManagementServer -Condition $Condition -PassThru:$PassThru `
                 -Variables @{
                 CustomDatabaseName = $_
                 ServerName         = $Server
                 BTSServer          = $env:COMPUTERNAME
             }
-            New-SqlUndeploymentScript -Path (Join-Path $PSScriptRoot 'RemoveCustomDatabaseFromOtherBackupDatabases.sql') -Server $Server -Condition $Condition -PassThru:$PassThru `
+            New-SqlUndeploymentScript -Path (Join-Path $PSScriptRoot 'RemoveCustomDatabaseFromOtherBackupDatabases.sql') -Server $ManagementServer -Condition $Condition -PassThru:$PassThru `
                 -Variables @{ CustomDatabaseName = $_ }
         }
     }

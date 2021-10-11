@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -26,7 +26,8 @@ function New-XmlUnconfigurationAction {
         [Parameter(Mandatory = $true, ParameterSetName = 'Update')]
         [Parameter(Mandatory = $true, ParameterSetName = 'Delete')]
         [Alias('TargetConfigurationFile', 'ConfigurationFile', 'ConfigFile')]
-        [ValidateScript( { Test-Path -Path $_ } )]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript( { $_ | ForEach-Object { (Test-Path -Path $_ -PathType Leaf) -or (Test-Path -Path $_ -IsValid) } } )]
         [string]
         $Path,
 
@@ -54,7 +55,7 @@ function New-XmlUnconfigurationAction {
         [Parameter(Mandatory = $false, ParameterSetName = 'Append')]
         [Parameter(Mandatory = $true, ParameterSetName = 'Update')]
         [ValidateNotNullOrEmpty()]
-        [hashtable]
+        [HashTable]
         $Attributes,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Append')]
@@ -73,11 +74,12 @@ function New-XmlUnconfigurationAction {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'XmlUnconfigurationActions'
-        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
-        Action    = $PSCmdlet.ParameterSetName
-        XPath     = $PSBoundParameters.$($PSCmdlet.ParameterSetName)
-        Condition = $Condition
+        Resource           = 'XmlUnconfigurationActions'
+        Path               = $Path
+        SkipPathResolution = -not (Test-Path -Path $Path -PathType Leaf)
+        Action             = $PSCmdlet.ParameterSetName
+        XPath              = $PSBoundParameters.$($PSCmdlet.ParameterSetName)
+        Condition          = $Condition
     }
     switch ($PSCmdlet.ParameterSetName) {
         { $_ -eq 'Append' } {

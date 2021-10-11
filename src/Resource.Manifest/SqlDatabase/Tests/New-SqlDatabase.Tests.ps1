@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -52,8 +52,8 @@ Describe 'New-SqlDatabase' {
 
         Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-ResourceManifest' {
             It 'Throws a Manifest variable exception.' {
-                { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -PassThru } |
-                    Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'The variable ''Manifest'' cannot be retrieved because it has not been set.' }
+                { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -ManagementServer ManagementDatabaseServer -PassThru } |
+                    Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'The variable ''`$Manifest'' cannot be retrieved because it has not been set.' }
         }
 
         Context 'Creating SqlDatabase throws when not done in the context of an Application manifest' {
@@ -106,15 +106,15 @@ Describe 'New-SqlDatabase' {
                     [PSCustomObject]@{ Name = 'BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{ } ; Path = 'TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'Backup_Setup_All_Tables.sql' ; Server = 'localhost' ; Database = 'BizTalkFactoryMgmtDb' ; Variables = @{ } ; Path = (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Tables.sql') | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'Backup_Setup_All_Procs.sql' ; Server = 'localhost' ; Database = 'BizTalkFactoryMgmtDb' ; Variables = @{ } ; Path = (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Procs.sql') | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'IncludeCustomDatabaseInOtherBackupDatabases.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' ; ServerName = 'localhost' ; BTSServer = $env:COMPUTERNAME } ; Path = "$PSScriptRoot\..\IncludeCustomDatabaseInOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'IncludeCustomDatabaseInOtherBackupDatabases.sql' ; Server = 'ManagementDatabaseServer' ; Database = [string]::Empty ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' ; ServerName = 'localhost' ; BTSServer = $env:COMPUTERNAME } ; Path = "$PSScriptRoot\..\IncludeCustomDatabaseInOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
                 $expectedUndeploymentItems = @(
                     [PSCustomObject]@{ Name = 'BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{ } ; Path = 'TestDrive:\BizTalk.Factory.Drop.BizTalkFactoryMgmtDb.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'RemoveCustomDatabaseFromOtherBackupDatabases.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' } ; Path = "$PSScriptRoot\..\RemoveCustomDatabaseFromOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+                    [PSCustomObject]@{ Name = 'RemoveCustomDatabaseFromOtherBackupDatabases.sql' ; Server = 'ManagementDatabaseServer' ; Database = [string]::Empty ; Variables = @{ CustomDatabaseName = 'BizTalkFactoryMgmtDb' } ; Path = "$PSScriptRoot\..\RemoveCustomDatabaseFromOtherBackupDatabases.sql" | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\ -EnlistInBizTalkBackupJob
+                    New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\ -EnlistInBizTalkBackupJob -ManagementServer ManagementDatabaseServer
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty

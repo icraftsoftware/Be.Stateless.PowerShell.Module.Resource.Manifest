@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -22,11 +22,8 @@ Describe 'New-XmlConfigurationAction' {
     InModuleScope Resource.Manifest {
 
         Context 'When configuration file does not exist' {
-            BeforeAll {
-                $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
-            }
-            It 'Throws a ParameterBindingValidationException.' {
-                { New-XmlConfigurationAction -Path 'c:\web.config' -Delete /configuration } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+            It 'Does not throw.' {
+                { New-XmlConfigurationAction -Path 'c:\web.config' -Delete /configuration -PassThru } | Should -Not -Throw
             }
         }
 

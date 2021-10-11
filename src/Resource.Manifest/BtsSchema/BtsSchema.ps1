@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -40,7 +40,7 @@ function New-Schema {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
         Resource  = 'Schemas'
-        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Path      = $Path
         Condition = $Condition
     }
     New-ResourceItem @arguments -PassThru:$PassThru

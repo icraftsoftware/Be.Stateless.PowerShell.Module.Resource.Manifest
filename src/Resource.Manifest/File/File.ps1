@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -29,6 +29,7 @@ function New-File {
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
+        [ValidateScript( { $_ | Test-Path -IsValid } )]
         [PSObject[]]
         $Destination,
 
@@ -45,7 +46,7 @@ function New-File {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
         Resource    = 'Files'
-        Path        = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Path        = $Path
         Destination = $Destination
         Condition   = $Condition
     }

@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -20,12 +20,12 @@ Set-StrictMode -Version Latest
 
 . $PSScriptRoot\Resource\Resource.ps1
 . $PSScriptRoot\Assembly\Assembly.ps1
-. $PSScriptRoot\BtsApplication\BtsApplication.ps1
+. $PSScriptRoot\BtsApplicationManifest\BtsApplicationManifest.ps1
 . $PSScriptRoot\BtsBamActivityModel\BtsBamActivityModel.ps1
 . $PSScriptRoot\BtsBamIndex\BtsBamIndex.ps1
 . $PSScriptRoot\BtsBinding\BtsBinding.ps1
 . $PSScriptRoot\BtsComponent\BtsComponent.ps1
-. $PSScriptRoot\BtsLibrary\BtsLibrary.ps1
+. $PSScriptRoot\BtsLibraryManifest\BtsLibraryManifest.ps1
 . $PSScriptRoot\BtsMap\BtsMap.ps1
 . $PSScriptRoot\BtsOrchestration\BtsOrchestration.ps1
 . $PSScriptRoot\BtsPipeline\BtsPipeline.ps1

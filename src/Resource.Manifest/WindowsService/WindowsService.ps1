@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -66,7 +66,7 @@ function New-WindowsService {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
         Resource    = 'WindowsServices'
-        Path        = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Path        = $Path
         Name        = $Name
         Credential  = $Credential
         StartupType = $StartupType

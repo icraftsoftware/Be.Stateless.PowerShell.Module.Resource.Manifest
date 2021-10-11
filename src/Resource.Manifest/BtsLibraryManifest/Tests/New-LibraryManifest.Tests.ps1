@@ -18,52 +18,48 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psd1 -Force
 
-Describe 'New-ResourceManifest' {
+Describe 'New-LibraryManifest' {
     InModuleScope Resource.Manifest {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Type = 'Application'; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Library' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' }
 
-                $actualManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Description 'No comment.' -References 'App.1', 'App.2' -Build { }
+                $actualManifest = New-LibraryManifest -Name 'BizTalk.Factory' -Description 'No comment.' -Build { }
 
                 $actualManifest | Should -BeOfType [HashTable]
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
                 $actualManifest.Properties | Should -Not -BeNullOrEmpty
-                $actualManifest.Properties.Type | Should -Be Application
+                $actualManifest.Properties.Type | Should -Be Library
                 Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
+            }
+            It 'Returns a manifest instance with all the properties.' {
+                $actualManifest = New-LibraryManifest -Name 'BizTalk.Factory' -Build { }
+
+                $actualManifest | Should -BeOfType [HashTable]
+                $actualManifest.ContainsKey('Properties') | Should -BeTrue
+                $actualManifest.Properties | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.Type | Should -Be Library
+                $actualManifest.Properties.Name | Should -Be 'BizTalk.Factory'
+                $actualManifest.Properties.Description | Should -BeNullOrEmpty
             }
         }
 
         Context 'When values are splatted' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Type = 'Application'; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Library' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' }
 
                 $arguments = @{
-                    Type        = 'Application'
                     Name        = 'BizTalk.Factory'
                     Description = 'No comment.'
-                    References  = 'App.1', 'App.2'
                 }
-                $actualManifest = New-ResourceManifest @arguments -Build { }
+                $actualManifest = New-LibraryManifest @arguments -Build { }
 
                 $actualManifest | Should -BeOfType [HashTable]
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
                 $actualManifest.Properties | Should -Not -BeNullOrEmpty
-                $actualManifest.Properties.Type | Should -Be Application
+                $actualManifest.Properties.Type | Should -Be Library
                 Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
-            }
-        }
-
-        Context 'Resource items can be accumulated in a Manifest' {
-            It 'Initializes a manifest prior to calling the manifest build ScriptBlock.' {
-                { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
-                New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    { $Manifest } | Should -Not -Throw
-                    $Manifest.Properties.Type | Should -Be Application
-                    $Manifest.Properties.Name | Should -Be BizTalk.Factory
-                }
-                { $Manifest } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException])
             }
         }
 

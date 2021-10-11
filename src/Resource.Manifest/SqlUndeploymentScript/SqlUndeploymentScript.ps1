@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -39,7 +39,7 @@ function New-SqlUndeploymentScript {
 
         [Parameter(Mandatory = $false)]
         [AllowNull()]
-        [hashtable]
+        [HashTable]
         $Variables,
 
         [Parameter(Mandatory = $false)]
@@ -55,7 +55,7 @@ function New-SqlUndeploymentScript {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
         Resource  = 'SqlUndeploymentScripts'
-        Path      = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Path      = $Path
         Server    = $Server
         Database  = $Database
         Condition = $Condition

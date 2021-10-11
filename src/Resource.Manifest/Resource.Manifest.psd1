@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -60,7 +60,7 @@
     FunctionsToExport     = @(
         # Assembly.ps1
         'New-Assembly',
-        # BtsApplication.ps1
+        # BtsApplicationManifest.ps1
         'New-ApplicationManifest',
         # BtsBamActivityModel.ps1
         'New-BamActivityModel',
@@ -70,7 +70,7 @@
         'New-Binding',
         # BtsComponent.ps1
         'New-Component',
-        # BtsLibrary.ps1
+        # BtsLibraryManifest.ps1
         'New-LibraryManifest',
         # BtsMap.ps1
         'New-Map',

@@ -1,4 +1,4 @@
-#region Copyright & License
+﻿#region Copyright & License
 
 # Copyright © 2012 - 2021 François Chabot
 #
@@ -63,7 +63,7 @@ function New-SsoConfigStore {
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
         Resource                   = 'SsoConfigStores'
-        Path                       = $Path | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        Path                       = $Path
         Condition                  = $Condition
         # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
         AdministratorGroups        = if ($AdministratorGroups | Test-Any) { $AdministratorGroups } else { , @() }
