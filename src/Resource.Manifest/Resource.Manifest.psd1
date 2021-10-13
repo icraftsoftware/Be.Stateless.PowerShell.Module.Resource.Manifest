@@ -47,6 +47,7 @@
         'PipelineComponent',
         'ProcessDescriptor',
         'Schema',
+        'ServiceComponent',
         'SqlDatabase',
         'SqlDeploymentScript',
         'SqlUndeploymentScript',
@@ -90,6 +91,8 @@
         'New-File',
         # Installer.ps1
         'New-Installer',
+        # ServiceComponent.ps1
+        'New-ServiceComponent',
         # SqlDatabase.ps1
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1

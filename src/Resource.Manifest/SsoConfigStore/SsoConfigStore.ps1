@@ -31,13 +31,13 @@ function New-SsoConfigStore {
         [AllowNull()]
         [AllowEmptyCollection()]
         [string[]]
-        $AdministratorGroups,
+        $AdministratorGroups = @((Get-BizTalkGroupSettings).BizTalkAdministratorGroup),
 
         [Parameter(Mandatory = $false)]
         [AllowNull()]
         [AllowEmptyCollection()]
         [string[]]
-        $UserGroups,
+        $UserGroups = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique),
 
         [Parameter(Mandatory = $false)]
         [ValidateScript( { ($_ | Test-None) -or ($_ | Test-Path -PathType Container) } )]

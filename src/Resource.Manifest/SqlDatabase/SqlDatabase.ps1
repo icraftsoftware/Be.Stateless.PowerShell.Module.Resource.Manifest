@@ -63,11 +63,6 @@ function New-SqlDatabase {
         [switch]
         $EnlistInBizTalkBackupJob,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $ManagementServer,
-
         [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
         [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
         [AllowNull()]
@@ -106,13 +101,13 @@ function New-SqlDatabase {
         if ($EnlistInBizTalkBackupJob) {
             New-SqlDeploymentScript -Path (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Tables.sql') -Server $Server -Database $_ -Condition $Condition -PassThru:$PassThru
             New-SqlDeploymentScript -Path (Join-Path $env:BTSINSTALLPATH 'Schema\Backup_Setup_All_Procs.sql') -Server $Server -Database $_ -Condition $Condition -PassThru:$PassThru
-            New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server $ManagementServer -Condition $Condition -PassThru:$PassThru `
+            New-SqlDeploymentScript -Path (Join-Path $PSScriptRoot 'IncludeCustomDatabaseInOtherBackupDatabases.sql') -Server ((Get-BizTalkGroupSettings).MgmtDbServerName) -Condition $Condition -PassThru:$PassThru `
                 -Variables @{
                 CustomDatabaseName = $_
                 ServerName         = $Server
                 BTSServer          = $env:COMPUTERNAME
             }
-            New-SqlUndeploymentScript -Path (Join-Path $PSScriptRoot 'RemoveCustomDatabaseFromOtherBackupDatabases.sql') -Server $ManagementServer -Condition $Condition -PassThru:$PassThru `
+            New-SqlUndeploymentScript -Path (Join-Path $PSScriptRoot 'RemoveCustomDatabaseFromOtherBackupDatabases.sql') -Server ((Get-BizTalkGroupSettings).MgmtDbServerName) -Condition $Condition -PassThru:$PassThru `
                 -Variables @{ CustomDatabaseName = $_ }
         }
     }

@@ -52,7 +52,7 @@ Describe 'New-SqlDatabase' {
 
         Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-ResourceManifest' {
             It 'Throws a Manifest variable exception.' {
-                { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -ManagementServer ManagementDatabaseServer -PassThru } |
+                { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -PassThru } |
                     Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'The variable ''`$Manifest'' cannot be retrieved because it has not been set.' }
         }
 
@@ -76,6 +76,8 @@ Describe 'New-SqlDatabase' {
                     '' | Set-Content -Path TestDrive:\Schema\Backup_Setup_All_Tables.sql
                     '' | Set-Content -Path TestDrive:\Schema\Backup_Setup_All_Procs.sql
                 }
+
+                Mock Get-BizTalkGroupSettings { return [PSCustomObject]@{ MgmtDbServerName = 'ManagementDatabaseServer' } }
             }
             It 'Accumulates SqlDeploymentScripts and SqlUndeploymentScripts into the Manifest being built.' {
                 $expectedDeploymentItems = @(
@@ -114,7 +116,7 @@ Describe 'New-SqlDatabase' {
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\ -EnlistInBizTalkBackupJob -ManagementServer ManagementDatabaseServer
+                    New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server localhost -Path TestDrive:\ -EnlistInBizTalkBackupJob
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty

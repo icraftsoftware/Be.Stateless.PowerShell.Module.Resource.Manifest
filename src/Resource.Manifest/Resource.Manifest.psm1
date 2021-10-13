@@ -35,6 +35,7 @@ Set-StrictMode -Version Latest
 . $PSScriptRoot\EventLogSource\EventLogSource.ps1
 . $PSScriptRoot\File\File.ps1
 . $PSScriptRoot\Installer\Installer.ps1
+. $PSScriptRoot\ServiceComponent\ServiceComponent.ps1
 . $PSScriptRoot\SqlDatabase\SqlDatabase.ps1
 . $PSScriptRoot\SqlDeploymentScript\SqlDeploymentScript.ps1
 . $PSScriptRoot\SqlUndeploymentScript\SqlUndeploymentScript.ps1

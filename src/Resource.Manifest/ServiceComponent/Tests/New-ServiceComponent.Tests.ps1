@@ -18,68 +18,67 @@
 
 Import-Module -Name $PSScriptRoot\..\..\Resource.Manifest.psd1 -Force
 
-Describe 'New-ProcessDescriptor' {
+Describe 'New-ServiceComponent' {
     InModuleScope Resource.Manifest {
 
-        Context 'When ProcessDescriptor file does not exist' {
+        Context 'When ServiceComponent file does not exist' {
             BeforeAll {
                 $script:ParameterBindingValidationExceptionType = [Type]::GetType('System.Management.Automation.ParameterBindingValidationException, System.Management.Automation', $true)
             }
             It 'Throws a ParameterBindingValidationException.' {
-                { New-ProcessDescriptor -Path 'c:\Assembly.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
+                { New-ServiceComponent -Path 'c:\component.dll' } | Should -Throw -ExceptionType $ParameterBindingValidationExceptionType
             }
         }
 
-        Context 'When ProcessDescriptor file exists' {
+        Context 'When ServiceComponent file exists' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
                 '' > TestDrive:\two.txt
             }
-            It 'Returns a custom object with both a path and a name property.' {
+            It 'Returns a custom object with a path property.' {
                 $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
 
-                $actualItem = New-ProcessDescriptor -Path TestDrive:\one.txt -PassThru
+                $actualItem = New-ServiceComponent -Path TestDrive:\one.txt -PassThru
 
                 Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
             }
-            It 'Returns a collection of custom objects with both a path and a name property.' {
+            It 'Returns a collection of custom objects with a path.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
-                $actualItems = New-ProcessDescriptor -Path (Get-ChildItem -Path TestDrive:\) -PassThru
+                $actualItems = New-ServiceComponent -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
                 $actualItems | Should -HaveCount 2
                 0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
             }
         }
 
-        Context 'Creating ProcessDescriptors must be done via the ScriptBlock passed to New-ResourceManifest' {
+        Context 'Creating ServiceComponents must be done via the ScriptBlock passed to New-ResourceManifest' {
             BeforeAll {
                 # create some empty files
                 '' > TestDrive:\one.txt
                 '' > TestDrive:\two.txt
-                '' > TestDrive:\six.txt
             }
-            It 'Accumulates ProcessDescriptors into the Manifest being built.' {
+            It 'Accumulates Assemblies into the Manifest being built.' {
                 $expectedItems = @(
                     [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-                    [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                     [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                 )
 
                 $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
-                    New-ProcessDescriptor -Path (Get-ChildItem -Path TestDrive:\)
+                    New-ServiceComponent -Path (Get-ChildItem -Path TestDrive:\)
                 }
 
                 $builtManifest | Should -Not -BeNullOrEmpty
-                $builtManifest.ContainsKey('ProcessDescriptors') | Should -BeTrue
-                $builtManifest.ProcessDescriptors | Should -HaveCount 3
-                0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.ProcessDescriptors[$_] | Should -BeNullOrEmpty }
+                $builtManifest.ContainsKey('ServiceComponents') | Should -BeTrue
+                $builtManifest.ServiceComponents | Should -HaveCount 2
+                0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.ServiceComponents[$_] | Should -BeNullOrEmpty }
             }
         }
+
 
     }
 }

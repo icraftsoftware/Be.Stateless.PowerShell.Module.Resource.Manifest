@@ -18,7 +18,7 @@
 
 Set-StrictMode -Version Latest
 
-function New-ProcessDescriptor {
+function New-ServiceComponent {
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
@@ -39,11 +39,12 @@ function New-ProcessDescriptor {
     )
     Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $arguments = @{
-        Resource  = 'ProcessDescriptors'
+        Resource  = 'ServiceComponents'
         Path      = $Path
         Condition = $Condition
     }
     New-ResourceItem @arguments -PassThru:$PassThru
 }
 
-Set-Alias -Name ProcessDescriptor -Value New-ProcessDescriptor
+Set-Alias -Name ServiceComponent -Value New-ServiceComponent
+
