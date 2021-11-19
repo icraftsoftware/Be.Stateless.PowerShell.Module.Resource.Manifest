@@ -38,6 +38,7 @@ Set-StrictMode -Version Latest
 . $PSScriptRoot\ServiceComponent\ServiceComponent.ps1
 . $PSScriptRoot\SqlDatabase\SqlDatabase.ps1
 . $PSScriptRoot\SqlDeploymentScript\SqlDeploymentScript.ps1
+. $PSScriptRoot\SqlLogin\SqlLogin.ps1
 . $PSScriptRoot\SqlUndeploymentScript\SqlUndeploymentScript.ps1
 . $PSScriptRoot\SsoConfigStore\SsoConfigStore.ps1
 . $PSScriptRoot\WindowsService\WindowsService.ps1

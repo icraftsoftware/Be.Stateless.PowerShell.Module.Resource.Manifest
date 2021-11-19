@@ -97,6 +97,8 @@
         'New-SqlDatabase',
         # SqlDeploymentScript.ps1
         'New-SqlDeploymentScript',
+        # SqlLogin.ps1
+        'ConvertTo-SqlLogin',
         # SqlUndeploymentScript.ps1
         'New-SqlUndeploymentScript',
         # Resource.ps1
