@@ -39,6 +39,12 @@ function New-ApplicationManifest {
         [string[]]
         $Reference,
 
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [AllowEmptyCollection()]
+        [string[]]
+        $WeakReference,
+
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [scriptblock]
@@ -50,6 +56,7 @@ function New-ApplicationManifest {
         Name       = $Name
         # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
         References = if ($Reference | Test-Any) { $Reference } else { , @() }
+        WeakReferences = if ($WeakReference | Test-Any) { $WeakReference } else { , @() }
     }
     if (![string]::IsNullOrWhiteSpace($Description)) { $arguments.Description = $Description }
     New-ResourceManifest @arguments -Build $Build
