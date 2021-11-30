@@ -23,9 +23,9 @@ Describe 'New-ApplicationManifest' {
 
         Context 'When values are given by arguments' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Type = 'Application' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Application' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') ; WeakReferences = @('App.3', 'App.4') }
 
-                $actualManifest = New-ApplicationManifest -Name BizTalk.Factory -Description 'No comment.' -Reference App.1, App.2 -Build { }
+                $actualManifest = New-ApplicationManifest -Name BizTalk.Factory -Description 'No comment.' -Reference App.1, App.2 -WeakReference App.3, App.4 -Build { }
 
                 $actualManifest | Should -BeOfType [HashTable]
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
@@ -34,7 +34,7 @@ Describe 'New-ApplicationManifest' {
                 Compare-ResourceItem -ReferenceItem $expectedManifest -DifferenceItem $actualManifest.Properties | Should -BeNullOrEmpty
             }
             It 'Returns a manifest instance with all the properties when optional arguments are null.' {
-                $actualManifest = New-ApplicationManifest -Name BizTalk.Factory -Description $null -Reference $null -Build { }
+                $actualManifest = New-ApplicationManifest -Name BizTalk.Factory -Description $null -Reference $null -WeakReference $null -Build { }
 
                 $actualManifest | Should -BeOfType [HashTable]
                 $actualManifest.ContainsKey('Properties') | Should -BeTrue
@@ -46,6 +46,8 @@ Describe 'New-ApplicationManifest' {
                 $actualManifest.Properties.Description | Should -BeNullOrEmpty
                 $actualManifest.Properties | Get-Member -Name References | Should -Not -BeNullOrEmpty
                 $actualManifest.Properties.References | Should -HaveCount 0
+                $actualManifest.Properties | Get-Member -Name WeakReferences | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.WeakReferences | Should -HaveCount 0
             }
             It 'Returns a manifest instance with all the properties.' {
                 $actualManifest = New-ApplicationManifest -Name BizTalk.Factory -Build { }
@@ -60,17 +62,20 @@ Describe 'New-ApplicationManifest' {
                 $actualManifest.Properties.Description | Should -BeNullOrEmpty
                 $actualManifest.Properties | Get-Member -Name References | Should -Not -BeNullOrEmpty
                 $actualManifest.Properties.References | Should -HaveCount 0
+                $actualManifest.Properties | Get-Member -Name WeakReferences | Should -Not -BeNullOrEmpty
+                $actualManifest.Properties.WeakReferences | Should -HaveCount 0
             }
         }
 
         Context 'When values are splatted' {
             It 'Returns a manifest instance.' {
-                $expectedManifest = [PSCustomObject]@{ Type = 'Application' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') }
+                $expectedManifest = [PSCustomObject]@{ Type = 'Application' ; Name = 'BizTalk.Factory' ; Description = 'No comment.' ; References = @('App.1', 'App.2') ; WeakReferences = @('App.3', 'App.4') }
 
                 $arguments = @{
-                    Name        = 'BizTalk.Factory'
-                    Description = 'No comment.'
-                    Reference  = 'App.1', 'App.2'
+                    Name          = 'BizTalk.Factory'
+                    Description   = 'No comment.'
+                    Reference     = 'App.1', 'App.2'
+                    WeakReference = 'App.3', 'App.4'
                 }
                 $actualManifest = New-ApplicationManifest @arguments -Build { }
 

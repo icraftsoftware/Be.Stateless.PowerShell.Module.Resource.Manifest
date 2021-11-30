@@ -28,7 +28,9 @@
     PowerShellVersion     = '5.0'
     NestedModules         = @()
     RequiredAssemblies    = @()
-    RequiredModules       = @('Psx')
+    RequiredModules       = @(
+        @{ ModuleName = 'Psx'; ModuleVersion = '1.0.21284.43438'; GUID = '217de01f-f2e1-460a-99a4-b8895d0dd071' }
+    )
 
     AliasesToExport       = @(
         'ApplicationManifest',
