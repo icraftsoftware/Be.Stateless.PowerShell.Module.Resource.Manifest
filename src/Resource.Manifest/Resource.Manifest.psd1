@@ -29,7 +29,7 @@
     NestedModules         = @()
     RequiredAssemblies    = @()
     RequiredModules       = @(
-        @{ ModuleName = 'Psx'; ModuleVersion = '1.0.21284.43438'; GUID = '217de01f-f2e1-460a-99a4-b8895d0dd071' }
+        @{ ModuleName = 'Psx'; ModuleVersion = '1.0.21342.42869'; GUID = '217de01f-f2e1-460a-99a4-b8895d0dd071' }
     )
 
     AliasesToExport       = @(
@@ -121,7 +121,7 @@
     VariablesToExport     = @()
     PrivateData           = @{
         PSData = @{
-            Tags                       = @('Item', 'Resource', 'Group', 'Declarative', 'PowerShell')
+            Tags                       = @('be.stateless.be', 'icraftsoftware', 'Item', 'Resource', 'Group', 'Declarative', 'PowerShell')
             LicenseUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/blob/master/LICENSE'
             ProjectUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest'
             ExternalModuleDependencies = @('Psx')
