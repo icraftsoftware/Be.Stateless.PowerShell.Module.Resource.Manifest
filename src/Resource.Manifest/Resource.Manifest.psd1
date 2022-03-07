@@ -29,6 +29,8 @@
    NestedModules         = @()
    RequiredAssemblies    = @()
    RequiredModules       = @(
+      @{ ModuleName = 'Psx' ; ModuleVersion = '2.1.0.0' ; GUID = '217de01f-f2e1-460a-99a4-b8895d0dd071' }
+      @{ ModuleName = 'Exec' ; ModuleVersion = '2.1.0.0' ; GUID = '83f4143a-79ee-49ee-a510-7770a0fc1644' }
       @{ ModuleName = 'BizTalk.Administration' ; ModuleVersion = '2.1.0.0' ; GUID = 'de802b43-c7a6-4580-a34b-ac805bbf813e' }
    )
 
@@ -121,7 +123,8 @@
          Tags                       = @('be.stateless.be', 'icraftsoftware', 'Item', 'Resource', 'Group', 'Declarative', 'PowerShell')
          LicenseUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/blob/master/LICENSE'
          ProjectUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest'
-         ExternalModuleDependencies = @('Psx')
+         ExternalModuleDependencies = @('BizTalk.Administration', 'Exec', 'Psx')
+         Prerelease                 = 'preview'
       }
    }
 }

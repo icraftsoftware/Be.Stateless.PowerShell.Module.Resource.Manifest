@@ -62,7 +62,7 @@ Describe 'New-ServiceComponent' {
             '' > TestDrive:\one.txt
             '' > TestDrive:\two.txt
          }
-         It 'Accumulates Assemblies into the Manifest being built.' {
+         It 'Accumulates ServiceComponents into the Manifest being built.' {
             $expectedItems = @(
                [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
                [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }

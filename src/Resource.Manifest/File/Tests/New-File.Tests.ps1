@@ -49,14 +49,37 @@ Describe 'New-File' {
                [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = 'c:\files\' }
             )
 
-            $actualItems = New-File -Path (Get-ChildItem -Path TestDrive:\) -Destination c:\files\ -PassThru
+            $actualItems = New-File -Path (Get-ChildItem -Path TestDrive:\) -DestinationFolder c:\files\ -PassThru
 
             $actualItems | Should -HaveCount 2
             0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
+         It 'Ensures that destination folders end with a ''\''.' {
+            $expectedItems = @(
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+            )
+
+            $actualItems = New-File -Path (Get-ChildItem -Path TestDrive:\) -DestinationFolder c:\folder.1\, c:\folder.2 -PassThru
+
+            $actualItems | Should -HaveCount 2
+            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+         }
+         It 'Throws when deploying multiple source files to one destination file.' {
+            { New-File -Path (Get-ChildItem -Path TestDrive:\) -Destination c:\files\one.txt, c:\files\two.txt -PassThru } |
+               Should -Throw -ExpectedMessage 'Deploying multiple source files to either a single or multiple destination files is ambiguous and not supported. Multiple source files can only be deployed to either a single or multiple destination folders.'
+         }
+         It 'Throws when deploying multiple source files to multiple destination files.' {
+            { New-File -Path (Get-ChildItem -Path TestDrive:\) -Destination c:\files\one.txt, c:\files\two.txt -PassThru } |
+               Should -Throw -ExpectedMessage 'Deploying multiple source files to either a single or multiple destination files is ambiguous and not supported. Multiple source files can only be deployed to either a single or multiple destination folders.'
+         }
+         It 'Throws when a destination file is a folder path.' {
+            { New-File -Path TestDrive:\one.txt -Destination c:\files\one.1.txt, c:\files\ -PassThru } |
+               Should -Throw -ExpectedMessage 'At least one destination file ends with a ''\'', denoting a destination folder instead.'
+         }
       }
 
-      Context 'Creating Assemblies must be done via the ScriptBlock passed to New-ResourceManifest' {
+      Context 'Creating Files must be done via the ScriptBlock passed to New-ResourceManifest' {
          BeforeAll {
             # create some empty files
             '' > TestDrive:\one.txt
@@ -71,7 +94,7 @@ Describe 'New-File' {
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
-               New-File -Path (Get-ChildItem -Path TestDrive:\) -Destination c:\folder.1\, c:\folder.2\
+               New-File -Path (Get-ChildItem -Path TestDrive:\) -DestinationFolder c:\folder.1, c:\folder.2
             }
 
             $builtManifest | Should -Not -BeNullOrEmpty

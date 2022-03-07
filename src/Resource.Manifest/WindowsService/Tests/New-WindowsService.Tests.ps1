@@ -54,7 +54,7 @@ Describe 'New-WindowsService' {
          }
       }
 
-      Context 'Creating service executable file must be done via the ScriptBlock passed to New-Manifest' {
+      Context 'Creating WindowsServices must be done via the ScriptBlock passed to New-Manifest' {
          BeforeAll {
             # create some empty files
             '' > TestDrive:\service-one.exe

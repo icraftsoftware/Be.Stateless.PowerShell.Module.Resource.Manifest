@@ -50,13 +50,13 @@ Describe 'New-SqlDatabase' {
          }
       }
 
-      Context 'Creating SqlDatabase throws when not done via the ScriptBlock passed to New-ResourceManifest' {
+      Context 'Creating SqlDatabases throws when not done via the ScriptBlock passed to New-ResourceManifest' {
          It 'Throws a Manifest variable exception.' {
             { New-SqlDatabase -Name BizTalkFactoryMgmtDb -Server ManagementDatabaseServer -Path TestDrive:\ -EnlistInBizTalkBackupJob -PassThru } |
                Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'The variable ''`$Manifest'' cannot be retrieved because it has not been set.' }
       }
 
-      Context 'Creating SqlDatabase throws when not done in the context of an Application manifest' {
+      Context 'Creating SqlDatabases throws when not done in the context of an Application manifest' {
          It 'Throws a manifest type exception.' {
             {
                New-ResourceManifest -Type Package -Name 'BizTalk.Factory' -Build {
@@ -65,7 +65,7 @@ Describe 'New-SqlDatabase' {
             } | Should -Throw -ExceptionType ([System.Management.Automation.RuntimeException]) -ExpectedMessage 'A BizTalk Application''s custom SQL database can only be installed in the context of an Application manifest.' }
       }
 
-      Context 'Creating SqlDatabase must be done via the ScriptBlock passed to New-ResourceManifest' {
+      Context 'Creating SqlDatabases must be done via the ScriptBlock passed to New-ResourceManifest' {
          BeforeAll {
             '' > TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.sql
             '' > TestDrive:\BizTalk.Factory.Create.BizTalkFactoryMgmtDb.Objects.sql
