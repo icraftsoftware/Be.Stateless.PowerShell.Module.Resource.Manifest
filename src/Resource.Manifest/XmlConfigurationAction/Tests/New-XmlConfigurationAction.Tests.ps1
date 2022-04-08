@@ -31,6 +31,7 @@ Describe 'New-XmlConfigurationAction' {
          BeforeAll {
             # create some empty files
             '' > TestDrive:\one.config
+            '' > TestDrive:\two.config
          }
          It 'Returns a custom object with a delete action.' {
             $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Delete' ; XPath = '/configuration/node' }
@@ -59,6 +60,18 @@ Describe 'New-XmlConfigurationAction' {
             $actualItem = New-XmlConfigurationAction -Path TestDrive:\one.config -Update /configuration/node -Attribute @{ a1 = 'v1' ; a2 = 'v2' } -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
+         }
+         It 'Returns a collection of custom objects with both a path and a action property.' {
+            $expectedItems = @(
+               [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+               [PSCustomObject]@{ Name = 'two.config' ; Path = 'TestDrive:\two.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+               [PSCustomObject]@{ Name = 'ten.config' ; Path = 'C:\inexistent\ten.config' ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+            )
+
+            $actualItems = New-XmlConfigurationAction -Path ((Get-ChildItem -Path TestDrive:\ | ForEach-Object FullName) + @('C:\inexistent\ten.config')) -Update /configuration/node -Attribute @{ a1 = 'v1' ; a2 = 'v2' } -PassThru
+
+            $actualItems | Should -HaveCount 3
+            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 

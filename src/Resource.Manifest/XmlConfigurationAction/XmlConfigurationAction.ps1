@@ -28,7 +28,7 @@ function New-XmlConfigurationAction {
       [Alias('TargetConfigurationFile', 'ConfigurationFile', 'ConfigFile')]
       [ValidateNotNullOrEmpty()]
       [ValidateScript( { $_ | ForEach-Object { (Test-Path -Path $_ -PathType Leaf) -or (Test-Path -Path $_ -IsValid) } } )]
-      [string]
+      [string[]]
       $Path,
 
       [Parameter(Mandatory = $true, ParameterSetName = 'Append')]
@@ -76,7 +76,7 @@ function New-XmlConfigurationAction {
    $arguments = @{
       ResourceGroup      = 'XmlConfigurationActions'
       Path               = $Path
-      SkipPathResolution = -not (Test-Path -Path $Path -PathType Leaf)
+      SkipPathResolution = $Path | Where-Object { -not (Test-Path -Path $_ -PathType Leaf) } | Test-Any
       Action             = $PSCmdlet.ParameterSetName
       XPath              = $PSBoundParameters.$($PSCmdlet.ParameterSetName)
       Condition          = $Condition
