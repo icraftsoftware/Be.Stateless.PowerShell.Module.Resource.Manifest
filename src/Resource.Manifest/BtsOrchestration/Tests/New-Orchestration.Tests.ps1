@@ -37,7 +37,7 @@ Describe 'New-Orchestration' {
             '' > TestDrive:\two.txt
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
 
             $actualItem = New-Orchestration -Path TestDrive:\one.txt -PassThru
 
@@ -45,14 +45,14 @@ Describe 'New-Orchestration' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" }
             )
 
             $actualItems = New-Orchestration -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -65,9 +65,9 @@ Describe 'New-Orchestration' {
          }
          It 'Accumulates Orchestrations into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
+               [PSCustomObject]@{ Name = 'six.txt' ; Path = "$TestDrive\six.txt" }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -76,8 +76,8 @@ Describe 'New-Orchestration' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('Orchestrations') | Should -BeTrue
-            $builtManifest.Orchestrations | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Orchestrations[$_] | Should -BeNullOrEmpty }
+            $builtManifest.Orchestrations | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Orchestrations[$_] | Should -BeNullOrEmpty }
          }
       }
 

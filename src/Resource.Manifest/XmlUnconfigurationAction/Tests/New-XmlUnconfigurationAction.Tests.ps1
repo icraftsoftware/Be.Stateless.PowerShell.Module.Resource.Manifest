@@ -34,28 +34,28 @@ Describe 'New-XmlUnconfigurationAction' {
             '' > TestDrive:\one.config
          }
          It 'Returns a custom object with a delete action.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Delete' ; XPath = '/configuration/node' }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" ; Action = 'Delete' ; XPath = '/configuration/node' }
 
             $actualItem = New-XmlUnconfigurationAction -Path TestDrive:\one.config -Delete /configuration/node -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with an insert action.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'node' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Append' ; XPath = '/configuration' ; Attribute = @{ } }
+            $expectedItem = [PSCustomObject]@{ Name = 'node' ; Path = "$TestDrive\one.config" ; Action = 'Append' ; XPath = '/configuration' ; Attribute = @{ } }
 
             $actualItem = New-XmlUnconfigurationAction -Path TestDrive:\one.config -Append /configuration -ElementName node -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with an insert action and attributes.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'node' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Append' ; XPath = '/configuration' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+            $expectedItem = [PSCustomObject]@{ Name = 'node' ; Path = "$TestDrive\one.config" ; Action = 'Append' ; XPath = '/configuration' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
 
             $actualItem = New-XmlUnconfigurationAction -Path TestDrive:\one.config -Append /configuration -ElementName node -Attribute @{ a1 = 'v1' ; a2 = 'v2' } -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with an update action.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
 
             $actualItem = New-XmlUnconfigurationAction -Path TestDrive:\one.config -Update /configuration/node -Attribute @{ a1 = 'v1' ; a2 = 'v2' } -PassThru
 
@@ -63,15 +63,15 @@ Describe 'New-XmlUnconfigurationAction' {
          }
          It 'Returns a collection of custom objects with both a path and a action property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
-               [PSCustomObject]@{ Name = 'two.config' ; Path = 'TestDrive:\two.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+               [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+               [PSCustomObject]@{ Name = 'two.config' ; Path = "$TestDrive\two.config" ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
                [PSCustomObject]@{ Name = 'ten.config' ; Path = 'C:\inexistent\ten.config' ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
             )
 
             $actualItems = New-XmlUnconfigurationAction -Path ((Get-ChildItem -Path TestDrive:\ | ForEach-Object FullName) + @('C:\inexistent\ten.config')) -Update /configuration/node -Attribute @{ a1 = 'v1' ; a2 = 'v2' } -PassThru
 
-            $actualItems | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -82,9 +82,9 @@ Describe 'New-XmlUnconfigurationAction' {
          }
          It 'Accumulates XmlUnconfigurationActions into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Delete' ; XPath = '/configuration/node' }
-               [PSCustomObject]@{ Name = 'node' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Append' ; XPath = '/configuration' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
-               [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+               [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" ; Action = 'Delete' ; XPath = '/configuration/node' }
+               [PSCustomObject]@{ Name = 'node' ; Path = "$TestDrive\one.config" ; Action = 'Append' ; XPath = '/configuration' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
+               [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" ; Action = 'Update' ; XPath = '/configuration/node' ; Attribute = @{ a1 = 'v1' ; a2 = 'v2' } }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -95,8 +95,8 @@ Describe 'New-XmlUnconfigurationAction' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('XmlUnconfigurationActions') | Should -BeTrue
-            $builtManifest.XmlUnconfigurationActions | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlUnconfigurationActions[$_] | Should -BeNullOrEmpty }
+            $builtManifest.XmlUnconfigurationActions | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlUnconfigurationActions[$_] | Should -BeNullOrEmpty }
          }
       }
 

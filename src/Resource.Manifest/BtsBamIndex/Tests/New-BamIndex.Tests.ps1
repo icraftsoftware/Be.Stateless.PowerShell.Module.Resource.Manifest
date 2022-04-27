@@ -46,8 +46,8 @@ Describe 'New-BamIndex' {
 
             $actualItems = New-BamIndex -Name BeginTime, InterchangeID -Activity Process -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -65,8 +65,8 @@ Describe 'New-BamIndex' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('BamIndexes') | Should -BeTrue
-            $builtManifest.BamIndexes | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamIndexes[$_] | Should -BeNullOrEmpty }
+            $builtManifest.BamIndexes | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.BamIndexes[$_] | Should -BeNullOrEmpty }
          }
       }
 

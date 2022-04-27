@@ -39,14 +39,14 @@ Describe 'New-WindowsService' {
             '' > TestDrive:\service.exe
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'service' ; Path = 'TestDrive:\service.exe' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Credential = $credential ; StartupType = 'Automatic' }
+            $expectedItem = [PSCustomObject]@{ Name = 'service' ; Path = "$TestDrive\service.exe" ; Credential = $credential ; StartupType = 'Automatic' }
 
             $actualItem = New-WindowsService -Path 'TestDrive:\service.exe' -Name 'service' -Credential $credential -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with both a description and a display name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'service' ; Path = 'TestDrive:\service.exe' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Credential = $credential ; StartupType = 'Automatic' ; Description = 'some descritpion' ; DisplayName = 'display name' }
+            $expectedItem = [PSCustomObject]@{ Name = 'service' ; Path = "$TestDrive\service.exe" ; Credential = $credential ; StartupType = 'Automatic' ; Description = 'some descritpion' ; DisplayName = 'display name' }
 
             $actualItem = New-WindowsService -Path 'TestDrive:\service.exe' -Name 'service' -Credential $credential -Description 'some descritpion' -DisplayName 'display name' -PassThru
 
@@ -62,8 +62,8 @@ Describe 'New-WindowsService' {
          }
          It 'Accumulates WindowsServices into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'service-one' ; Path = 'TestDrive:\service-one.exe' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Credential = $credential ; StartupType = 'Automatic' }
-               [PSCustomObject]@{ Name = 'service-two' ; Path = 'TestDrive:\service-two.exe' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Credential = $credential ; StartupType = 'Manual' }
+               [PSCustomObject]@{ Name = 'service-one' ; Path = "$TestDrive\service-one.exe" ; Credential = $credential ; StartupType = 'Automatic' }
+               [PSCustomObject]@{ Name = 'service-two' ; Path = "$TestDrive\service-two.exe" ; Credential = $credential ; StartupType = 'Manual' }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -73,8 +73,8 @@ Describe 'New-WindowsService' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('WindowsServices') | Should -BeTrue
-            $builtManifest.WindowsServices | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.WindowsServices[$_] | Should -BeNullOrEmpty }
+            $builtManifest.WindowsServices | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.WindowsServices[$_] | Should -BeNullOrEmpty }
          }
       }
 

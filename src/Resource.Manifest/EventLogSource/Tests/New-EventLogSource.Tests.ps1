@@ -49,8 +49,8 @@ Describe 'New-EventLogSource' {
 
             $actualItems = New-EventLogSource -Name 'Claim Store Agent', 'BizTalk Factory' -LogName System -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -67,8 +67,8 @@ Describe 'New-EventLogSource' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('EventLogSources') | Should -BeTrue
-            $builtManifest.EventLogSources | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.EventLogSources[$_] | Should -BeNullOrEmpty }
+            $builtManifest.EventLogSources | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.EventLogSources[$_] | Should -BeNullOrEmpty }
          }
       }
 

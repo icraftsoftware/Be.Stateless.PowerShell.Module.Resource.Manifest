@@ -69,14 +69,14 @@ Describe 'New-SsoConfigStore' {
             '' > TestDrive:\two.txt
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
 
             $actualItem = New-SsoConfigStore -Path TestDrive:\one.txt -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with a UserGroup, AdministratorGroup, and a EnvironmentSettingOverridesTypeName property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @('BizTalk Server Administrators') ; UserGroup = @('BizTalk Application Users') ; EnvironmentSettingOverridesTypeName = 'override-type' ; AssemblyProbingFolderPath = @() }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AdministratorGroup = @('BizTalk Server Administrators') ; UserGroup = @('BizTalk Application Users') ; EnvironmentSettingOverridesTypeName = 'override-type' ; AssemblyProbingFolderPath = @() }
 
             $actualItem = New-SsoConfigStore -Path TestDrive:\one.txt -PassThru -AdministratorGroup 'BizTalk Server Administrators' -UserGroup 'BizTalk Application Users' -EnvironmentSettingOverridesTypeName 'override-type'
 
@@ -85,7 +85,7 @@ Describe 'New-SsoConfigStore' {
          It 'Returns an object with AssemblyProbingFolderPath and EnvironmentSettingOverridesTypeName.' {
             $expectedItem = [PSCustomObject]@{
                Name                                = 'one.txt'
-               Path                                = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+               Path                                = "$TestDrive\one.txt"
                AdministratorGroup                  = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup)
                UserGroup                           = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique)
                AssemblyProbingFolderPath           = ($PSScriptRoot | Resolve-Path | Split-Path -Parent), ($PSScriptRoot | Resolve-Path | Split-Path -Parent | Split-Path -Parent)
@@ -98,14 +98,14 @@ Describe 'New-SsoConfigStore' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
             )
 
             $actualItems = New-SsoConfigStore -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -118,9 +118,9 @@ Describe 'New-SsoConfigStore' {
          }
          It 'Accumulates SsoConfigStores into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
-               [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'six.txt' ; Path = "$TestDrive\six.txt" ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; AdministratorGroup = @(Get-BizTalkGroupSettings | ForEach-Object BizTalkAdministratorGroup) ; UserGroup = @(Get-BizTalkHost | ForEach-Object NTGroupName | Select-Object -Unique) ; AssemblyProbingFolderPath = @() }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -129,8 +129,8 @@ Describe 'New-SsoConfigStore' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('SsoConfigStores') | Should -BeTrue
-            $builtManifest.SsoConfigStores | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SsoConfigStores[$_] | Should -BeNullOrEmpty }
+            $builtManifest.SsoConfigStores | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SsoConfigStores[$_] | Should -BeNullOrEmpty }
          }
       }
 

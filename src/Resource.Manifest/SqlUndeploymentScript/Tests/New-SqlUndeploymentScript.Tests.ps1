@@ -51,7 +51,7 @@ Describe 'New-SqlUndeploymentScript' {
             '' > TestDrive:\two.sql
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.sql' ; Variable = @{ Login = 'account' } ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.sql' ; Variable = @{ Login = 'account' } ; Server = 'localhost' ; Database = [string]::Empty ; Path = "$TestDrive\one.sql" }
 
             $actualItem = New-SqlUndeploymentScript -Path TestDrive:\one.sql -Server localhost -Variable @{ Login = 'account' } -PassThru
 
@@ -59,14 +59,14 @@ Describe 'New-SqlUndeploymentScript' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variable = @{ } }
-               [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variable = @{ } }
+               [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = "$TestDrive\one.sql" ; Variable = @{ } }
+               [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = "$TestDrive\two.sql" ; Variable = @{ } }
             )
 
             $actualItems = New-SqlUndeploymentScript -Path (Get-ChildItem -Path TestDrive:\) -Server localhost -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -79,9 +79,9 @@ Describe 'New-SqlUndeploymentScript' {
          }
          It 'Accumulates SqlUndeploymentScripts into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\one.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variable = @{ } }
-               [PSCustomObject]@{ Name = 'six.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\six.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variable = @{ } }
-               [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = 'TestDrive:\two.sql' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Variable = @{ } }
+               [PSCustomObject]@{ Name = 'one.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = "$TestDrive\one.sql" ; Variable = @{ } }
+               [PSCustomObject]@{ Name = 'six.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = "$TestDrive\six.sql" ; Variable = @{ } }
+               [PSCustomObject]@{ Name = 'two.sql' ; Server = 'localhost' ; Database = [string]::Empty ; Path = "$TestDrive\two.sql" ; Variable = @{ } }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -90,8 +90,8 @@ Describe 'New-SqlUndeploymentScript' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('SqlUndeploymentScripts') | Should -BeTrue
-            $builtManifest.SqlUndeploymentScripts | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
+            $builtManifest.SqlUndeploymentScripts | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SqlUndeploymentScripts[$_] | Should -BeNullOrEmpty }
          }
       }
 

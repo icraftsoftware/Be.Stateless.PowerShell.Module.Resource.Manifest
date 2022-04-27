@@ -37,14 +37,14 @@ Describe 'New-Assembly' {
             '' > TestDrive:\two.txt
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
 
             $actualItem = New-Assembly -Path TestDrive:\one.txt -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with an InstallReference property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; InstallReference = 'install-ref' }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; InstallReference = 'install-ref' }
 
             $actualItem = New-Assembly -Path TestDrive:\one.txt -InstallReference 'install-ref' -PassThru
 
@@ -52,25 +52,25 @@ Describe 'New-Assembly' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" }
             )
 
             $actualItems = New-Assembly -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
          It 'Returns a collection of custom objects with an InstallReference property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; InstallReference = 'ref' }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; InstallReference = 'ref' }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; InstallReference = 'ref' }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; InstallReference = 'ref' }
             )
 
             $actualItems = New-Assembly -Path (Get-ChildItem -Path TestDrive:\) -InstallReference ref -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -83,9 +83,9 @@ Describe 'New-Assembly' {
          }
          It 'Accumulates Assemblies into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
+               [PSCustomObject]@{ Name = 'six.txt' ; Path = "$TestDrive\six.txt" }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -94,8 +94,8 @@ Describe 'New-Assembly' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('Assemblies') | Should -BeTrue
-            $builtManifest.Assemblies | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Assemblies[$_] | Should -BeNullOrEmpty }
+            $builtManifest.Assemblies | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Assemblies[$_] | Should -BeNullOrEmpty }
          }
       }
 

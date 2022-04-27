@@ -37,7 +37,7 @@ Describe 'New-XmlConfiguration' {
             '' > TestDrive:\two.config
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" }
 
             $actualItem = New-XmlConfiguration -Path TestDrive:\one.config -PassThru
 
@@ -45,14 +45,14 @@ Describe 'New-XmlConfiguration' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.config' ; Path = 'TestDrive:\two.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" }
+               [PSCustomObject]@{ Name = 'two.config' ; Path = "$TestDrive\two.config" }
             )
 
             $actualItems = New-XmlConfiguration -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -65,9 +65,9 @@ Describe 'New-XmlConfiguration' {
          }
          It 'Accumulates XmlConfigurations into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.config' ; Path = 'TestDrive:\one.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'six.config' ; Path = 'TestDrive:\six.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.config' ; Path = 'TestDrive:\two.config' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.config' ; Path = "$TestDrive\one.config" }
+               [PSCustomObject]@{ Name = 'six.config' ; Path = "$TestDrive\six.config" }
+               [PSCustomObject]@{ Name = 'two.config' ; Path = "$TestDrive\two.config" }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -76,8 +76,8 @@ Describe 'New-XmlConfiguration' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('XmlConfigurations') | Should -BeTrue
-            $builtManifest.XmlConfigurations | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlConfigurations[$_] | Should -BeNullOrEmpty }
+            $builtManifest.XmlConfigurations | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.XmlConfigurations[$_] | Should -BeNullOrEmpty }
          }
       }
 

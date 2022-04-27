@@ -45,17 +45,16 @@ Describe 'Get-ResourceItem' {
                -ExpectedMessage "Ambiguous resource items found ``['Ambiguous.dll'] matching criteria ``[Path: '*', Name: 'Ambiguous', Extensions = '.dll, .exe']."
          }
          It 'Returns a collection of resource items.' {
-            $actualResourceItems = Get-Item -Path TestDrive:\subfolder\Test.1.dll, TestDrive:\Test.2.dll
+            $expectedItems = Get-Item -Path TestDrive:\subfolder\Test.1.dll, TestDrive:\Test.2.dll
 
-            $expectedResourceItems = Get-ResourceItem -FolderPath TestDrive:\ -Name Test.1, Test.2
-            $expectedResourceItems | Should -HaveCount 2
-
-            0..1 | ForEach-Object -Process { Compare-Object -ReferenceObject $actualResourceItems[$_] -DifferenceObject $expectedResourceItems[$_] | Should -BeNullOrEmpty }
+            $actualItems = Get-ResourceItem -FolderPath TestDrive:\ -Name Test.1, Test.2
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-Object -ReferenceObject $actualItems[$_] -DifferenceObject $expectedItems[$_] | Should -BeNullOrEmpty }
          }
          It 'Returns a single resource item.' {
-            $actualResourceItem = Get-Item -Path TestDrive:\Test.2.dll
-            $expectedResourceItem = Get-ResourceItem -FolderPath (Resolve-Path TestDrive:\ | Select-Object -ExpandProperty ProviderPath) -Name Test.2
-            Compare-Object -ReferenceObject $expectedResourceItem -DifferenceObject $actualResourceItem | Should -BeNullOrEmpty
+            $expectedItem = Get-Item -Path TestDrive:\Test.2.dll
+            $actualItem = Get-ResourceItem -FolderPath (Resolve-Path TestDrive:\ | Select-Object -ExpandProperty ProviderPath) -Name Test.2
+            Compare-Object -ReferenceObject $expectedItem -DifferenceObject $actualItem | Should -BeNullOrEmpty
          }
       }
    }

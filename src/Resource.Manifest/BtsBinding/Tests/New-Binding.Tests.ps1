@@ -59,7 +59,7 @@ Describe 'New-Binding' {
             { New-Binding -Path TestDrive:\two.txt -PassThru } | Should -Not -Throw
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AssemblyProbingFolderPath = @() }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AssemblyProbingFolderPath = @() }
 
             $actualItem = New-Binding -Path TestDrive:\one.txt -PassThru
 
@@ -68,7 +68,7 @@ Describe 'New-Binding' {
          It 'Returns an object with AssemblyProbingFolderPath and EnvironmentSettingOverridesTypeName.' {
             $expectedItem = [PSCustomObject]@{
                Name                                = 'one.txt'
-               Path                                = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+               Path                                = "$TestDrive\one.txt"
                AssemblyProbingFolderPath           = ($PSScriptRoot | Resolve-Path | Split-Path -Parent), ($PSScriptRoot | Resolve-Path | Split-Path -Parent | Split-Path -Parent)
                EnvironmentSettingOverridesTypeName = 'some-environment-setting-overrides-type-name'
             }
@@ -79,14 +79,14 @@ Describe 'New-Binding' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AssemblyProbingFolderPath = @() }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; AssemblyProbingFolderPath = @() }
             )
 
             $actualItems = New-Binding -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -99,9 +99,9 @@ Describe 'New-Binding' {
          }
          It 'Accumulates Bindings into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AssemblyProbingFolderPath = @() }
-               [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AssemblyProbingFolderPath = @() }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'six.txt' ; Path = "$TestDrive\six.txt" ; AssemblyProbingFolderPath = @() }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; AssemblyProbingFolderPath = @() }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -110,8 +110,8 @@ Describe 'New-Binding' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('Bindings') | Should -BeTrue
-            $builtManifest.Bindings | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Bindings[$_] | Should -BeNullOrEmpty }
+            $builtManifest.Bindings | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Bindings[$_] | Should -BeNullOrEmpty }
          }
       }
 

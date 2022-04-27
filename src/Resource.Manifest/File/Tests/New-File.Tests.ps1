@@ -37,7 +37,7 @@ Describe 'New-File' {
             '' > TestDrive:\two.txt
          }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\files\one.1.txt', 'c:\files\one.2.txt') }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; Destination = @('c:\files\one.1.txt', 'c:\files\one.2.txt') }
 
             $actualItem = New-File -Path TestDrive:\one.txt -Destination c:\files\one.1.txt, c:\files\one.2.txt -PassThru
 
@@ -45,25 +45,25 @@ Describe 'New-File' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = 'c:\files\' }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = 'c:\files\' }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; Destination = 'c:\files\' }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; Destination = 'c:\files\' }
             )
 
             $actualItems = New-File -Path (Get-ChildItem -Path TestDrive:\) -DestinationFolder c:\files\ -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
          It 'Ensures that destination folders end with a ''\''.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
             )
 
             $actualItems = New-File -Path (Get-ChildItem -Path TestDrive:\) -DestinationFolder c:\folder.1\, c:\folder.2 -PassThru
 
-            $actualItems | Should -HaveCount 2
-            0..1 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
          It 'Throws when deploying multiple source files to one destination file.' {
             { New-File -Path (Get-ChildItem -Path TestDrive:\) -Destination c:\files\one.txt, c:\files\two.txt -PassThru } |
@@ -88,9 +88,9 @@ Describe 'New-File' {
          }
          It 'Accumulates Assemblies into the Manifest being built.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
-               [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+               [PSCustomObject]@{ Name = 'six.txt' ; Path = "$TestDrive\six.txt" ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" ; Destination = @('c:\folder.1\', 'c:\folder.2\') }
             )
 
             $builtManifest = New-ResourceManifest -Type Application -Name 'BizTalk.Factory' -Build {
@@ -99,8 +99,8 @@ Describe 'New-File' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('Files') | Should -BeTrue
-            $builtManifest.Files | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Files[$_] | Should -BeNullOrEmpty }
+            $builtManifest.Files | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.Files[$_] | Should -BeNullOrEmpty }
          }
       }
 

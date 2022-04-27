@@ -27,7 +27,6 @@ function New-XmlUnconfigurationAction {
       [Parameter(Mandatory = $true, ParameterSetName = 'Delete')]
       [Alias('TargetConfigurationFile', 'ConfigurationFile', 'ConfigFile')]
       [ValidateNotNullOrEmpty()]
-      [ValidateScript( { $_ | ForEach-Object { (Test-Path -Path $_ -PathType Leaf) -or (Test-Path -Path $_ -IsValid) } } )]
       [string[]]
       $Path,
 
@@ -74,12 +73,11 @@ function New-XmlUnconfigurationAction {
    )
    Resolve-ActionPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
    $arguments = @{
-      ResourceGroup      = 'XmlUnconfigurationActions'
-      Path               = $Path
-      SkipPathResolution = $Path | Where-Object { -not (Test-Path -Path $_ -PathType Leaf) } | Test-Any
-      Action             = $PSCmdlet.ParameterSetName
-      XPath              = $PSBoundParameters.$($PSCmdlet.ParameterSetName)
-      Condition          = $Condition
+      ResourceGroup = 'XmlUnconfigurationActions'
+      Path          = $Path
+      Action        = $PSCmdlet.ParameterSetName
+      XPath         = $PSBoundParameters.$($PSCmdlet.ParameterSetName)
+      Condition     = $Condition
    }
    switch ($PSCmdlet.ParameterSetName) {
       { $_ -eq 'Append' } {

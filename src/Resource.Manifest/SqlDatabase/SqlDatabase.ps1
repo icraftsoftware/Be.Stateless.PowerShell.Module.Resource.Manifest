@@ -38,46 +38,40 @@ Set-StrictMode -Version Latest
    © 2022 be.stateless.
 #>
 function New-SqlDatabase {
-   [CmdletBinding(DefaultParameterSetName = 'without-backup')]
+   [CmdletBinding()]
    [OutputType([PSCustomObject[]])]
    param (
-      [Parameter(Mandatory = $true, ParameterSetName = 'without-backup')]
-      [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $true)]
       [ValidateNotNullOrEmpty()]
       [string[]]
       $Name,
 
-      [Parameter(Mandatory = $true, ParameterSetName = 'without-backup')]
-      [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $true)]
       [ValidateNotNullOrEmpty()]
       [string]
       $Server,
 
-      [Parameter(Mandatory = $true, ParameterSetName = 'without-backup')]
-      [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $true)]
       [ValidateScript( { $_ | Test-Path -PathType Container } )]
       [PSObject]
       $Path,
 
-      [Parameter(Mandatory = $true, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $false)]
       [switch]
       $EnlistInBizTalkBackupJob,
 
-      [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
-      [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $false)]
       [AllowNull()]
       [HashTable]
       $Variable,
 
-      [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
-      [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $false)]
       [ValidateNotNullOrEmpty()]
       [ValidateScript( { $_ -is [bool] -or $_ -is [ScriptBlock] } )]
       [PSObject]
       $Condition = $true,
 
-      [Parameter(Mandatory = $false, ParameterSetName = 'without-backup')]
-      [Parameter(Mandatory = $false, ParameterSetName = 'with-backup')]
+      [Parameter(Mandatory = $false)]
       [switch]
       $PassThru
    )

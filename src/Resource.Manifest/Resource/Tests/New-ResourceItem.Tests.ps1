@@ -43,8 +43,8 @@ Describe 'New-ResourceItem' {
 
             $actualItems = New-ResourceItem -ResourceGroup SomeResources -Name BeginTime, InterchangeID, ProcessName -PassThru
 
-            $actualItems | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
       }
 
@@ -57,21 +57,22 @@ Describe 'New-ResourceItem' {
             '' > TestDrive:\two.txt
             '' > TestDrive:\six.txt
          }
-         It 'Throws when path is invalid.' {
+         It 'Does not throw when path is not found.' {
+            { New-ResourceItem -ResourceGroup SomeResources -Path 'c:\folder\file.txt' } | Should -Not -Throw
+         }
+         It 'Throws when path is found but cannot be resolved.' {
+            Mock -CommandName Test-Path -MockWith { return $true } -ParameterFilter { $Path -eq 'c:\folder\file.txt' }
             { New-ResourceItem -ResourceGroup SomeResources -Path 'c:\folder\file.txt' } | Should -Throw -ExceptionType 'System.Management.Automation.ItemNotFoundException, System.Management.Automation'
          }
-         It 'Does not throw when path is invalid if resolution is skipped.' {
-            { New-ResourceItem -ResourceGroup SomeResources -Path 'c:\folder\file.txt' -SkipPathResolution } | Should -Not -Throw
-         }
          It 'Returns a custom object with both a path and a name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
 
             $actualItem = New-ResourceItem -ResourceGroup SomeResources -Path TestDrive:\one.txt -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a custom object with both a path and a custom name property.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'MyName' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+            $expectedItem = [PSCustomObject]@{ Name = 'MyName' ; Path = "$TestDrive\one.txt" }
 
             $actualItem = New-ResourceItem -ResourceGroup SomeResources -Path TestDrive:\one.txt -Name MyName -PassThru
 
@@ -86,15 +87,15 @@ Describe 'New-ResourceItem' {
          }
          It 'Returns a collection of custom objects with both a path and a name property.' {
             $expectedItems = @(
-               [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'six.txt' ; Path = 'TestDrive:\six.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-               [PSCustomObject]@{ Name = 'two.txt' ; Path = 'TestDrive:\two.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
+               [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" }
+               [PSCustomObject]@{ Name = 'six.txt' ; Path = "$TestDrive\six.txt" }
+               [PSCustomObject]@{ Name = 'two.txt' ; Path = "$TestDrive\two.txt" }
             )
 
             $actualItems = New-ResourceItem -ResourceGroup SomeResources -Path (Get-ChildItem -Path TestDrive:\) -PassThru
 
-            $actualItems | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
+            $actualItems | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $actualItems[$_] | Should -BeNullOrEmpty }
          }
          It 'Returns a named custom object with dynamic properties corresponding to UnboundArguments.' {
             $expectedItem = [PSCustomObject]@{ Name = 'ActivityID' ; Activity = 'Process' ; Server = 'ManagementDb' }
@@ -111,14 +112,14 @@ Describe 'New-ResourceItem' {
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a located custom object with dynamic properties corresponding to UnboundArguments.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Activity = 'Process' ; Server = 'ManagementDb' }
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; Activity = 'Process' ; Server = 'ManagementDb' }
 
             $actualItem = New-ResourceItem -ResourceGroup SomeResources -Path TestDrive:\one.txt -Activity Process -Server ManagementDb -PassThru
 
             Compare-ResourceItem -ReferenceItem $expectedItem -DifferenceItem $actualItem | Should -BeNullOrEmpty
          }
          It 'Returns a located custom object with a dynamic method being a ScriptBlock.' {
-            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = 'TestDrive:\one.txt' | Resolve-Path | Select-Object -ExpandProperty ProviderPath ; Activity = 'Process' ; Server = 'ManagementDb' } | Add-Member -MemberType ScriptMethod -Name Predicate -Value { $true } -PassThru
+            $expectedItem = [PSCustomObject]@{ Name = 'one.txt' ; Path = "$TestDrive\one.txt" ; Activity = 'Process' ; Server = 'ManagementDb' } | Add-Member -MemberType ScriptMethod -Name Predicate -Value { $true } -PassThru
 
             $actualItem = New-ResourceItem -ResourceGroup SomeResources -Path TestDrive:\one.txt -Activity Process -Server ManagementDb -Predicate { $true } -PassThru
 
@@ -169,8 +170,8 @@ Describe 'New-ResourceItem' {
 
             $builtManifest | Should -Not -BeNullOrEmpty
             $builtManifest.ContainsKey('SomeResources') | Should -BeTrue
-            $builtManifest.SomeResources | Should -HaveCount 3
-            0..2 | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SomeResources[$_] | Should -BeNullOrEmpty }
+            $builtManifest.SomeResources | Should -HaveCount $expectedItems.Length
+            0..($expectedItems.Length - 1) | ForEach-Object -Process { Compare-ResourceItem -ReferenceItem $expectedItems[$_] -DifferenceItem $builtManifest.SomeResources[$_] | Should -BeNullOrEmpty }
          }
          It 'Does not accumulate the Items whose condition is false into the Manifest being built.' {
             $expectedItems = [PSCustomObject]@{ Name = 'ProcessName' }

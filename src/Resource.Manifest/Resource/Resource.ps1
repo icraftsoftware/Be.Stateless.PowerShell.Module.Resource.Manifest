@@ -70,13 +70,9 @@ function New-ResourceItem {
       $Name,
 
       [Parameter(Mandatory = $true, ParameterSetName = 'file-resource')]
-      [ValidateScript( { $_ | ForEach-Object { (Test-Path -Path $_ -PathType Leaf) -or (Test-Path -Path $_ -IsValid) } } )]
+      [ValidateNotNullOrEmpty()]
       [PSObject[]]
       $Path,
-
-      [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
-      [switch]
-      $SkipPathResolution,
 
       [Parameter(Mandatory = $false, ParameterSetName = 'named-resource')]
       [Parameter(Mandatory = $false, ParameterSetName = 'file-resource')]
@@ -103,13 +99,18 @@ function New-ResourceItem {
    # any item is assumed to be included by default unless specified otherwise: when its Condition is either $false or deferred (a ScriptBlock)
    if ($Condition -is [ScriptBlock] -or -not($Condition)) { $splattedArguments.Add('Condition', $Condition) }
 
-   $items = $(if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
+   $items = $(
+      if ($PSCmdlet.ParameterSetName -eq 'named-resource') {
          $Name
-      } elseif ($SkipPathResolution) {
-         $Path
       } else {
-         # -ErrorAction, see https://stackoverflow.com/a/49493910/1789441
-         $Path | Resolve-Path -ErrorAction Stop | Select-Object -ExpandProperty ProviderPath
+         $Path | ForEach-Object -Process {
+            if ($_ | Test-Path -PathType Leaf) {
+               # -ErrorAction, see https://stackoverflow.com/a/49493910/1789441
+               $_ | Resolve-Path -ErrorAction Stop | Select-Object -ExpandProperty ProviderPath
+            } else {
+               $_
+            }
+         }
       }
    )
    $items | ForEach-Object -Process {
