@@ -33,6 +33,11 @@ function New-LibraryManifest {
       [string]
       $Description = $null,
 
+      [Parameter(DontShow, Mandatory = $false)]
+      [ValidateNotNullOrEmpty()]
+      [string]
+      $Path = $MyInvocation.PSCommandPath,
+
       [Parameter(Mandatory = $true)]
       [ValidateNotNullOrEmpty()]
       [scriptblock]
@@ -42,6 +47,7 @@ function New-LibraryManifest {
    $arguments = @{
       Type = 'Library'
       Name = $Name
+      Path = $Path
    }
    if (![string]::IsNullOrWhiteSpace($Description)) { $arguments.Description = $Description }
    New-ResourceManifest @arguments -Build $Build

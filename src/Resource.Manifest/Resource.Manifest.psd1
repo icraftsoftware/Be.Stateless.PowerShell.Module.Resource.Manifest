@@ -123,6 +123,7 @@
          Tags                       = @('be.stateless', 'icraftsoftware', 'Item', 'Resource', 'Group', 'Declarative', 'PowerShell')
          LicenseUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest/blob/master/LICENSE'
          ProjectUri                 = 'https://github.com/icraftsoftware/Be.Stateless.PowerShell.Module.Resource.Manifest'
+         IconUri                    = 'https://github.com/icraftsoftware/Be.Stateless.Build.Scripts/raw/master/nuget.png'
          ExternalModuleDependencies = @('BizTalk.Administration', 'Psx')
          Prerelease                 = 'preview'
       }

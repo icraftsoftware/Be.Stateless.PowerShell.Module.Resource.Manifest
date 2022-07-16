@@ -45,6 +45,11 @@ function New-ApplicationManifest {
       [string[]]
       $WeakReference,
 
+      [Parameter(DontShow, Mandatory = $false)]
+      [ValidateNotNullOrEmpty()]
+      [string]
+      $Path = $MyInvocation.PSCommandPath,
+
       [Parameter(Mandatory = $true)]
       [ValidateNotNullOrEmpty()]
       [scriptblock]
@@ -54,6 +59,7 @@ function New-ApplicationManifest {
    $arguments = @{
       Type          = 'Application'
       Name          = $Name
+      Path          = $Path
       # force empty array by prepending it with the array construction operator, see https://stackoverflow.com/a/18477004/1789441
       Reference     = if ($Reference | Test-Any) { $Reference } else { , @() }
       WeakReference = if ($WeakReference | Test-Any) { $WeakReference } else { , @() }
